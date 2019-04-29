@@ -1,14 +1,34 @@
 #include <iostream>
-// #include "../Material_practicas/alg_grafoPMC.h"
+#include <algorithm>
+#include <vector>
+#include "materialesGrafos/alg_grafoPMC.h"
+#include "materialesGrafos/grafoPMC.h"
+#include "materialesGrafos/matriz.h"
+#include "materialesGrafos/alg_grafo_E-S.h"
 
 using namespace std;
 
-// PROBLEMA 2. Aplicamos Floydd, cogemos la suma de los dos maximos de cada 
-// fila. Y nos quedamos con el mínimo de éste
-template <typename T>
-int diametro(const GrafoP<T>& G)
+// PROBLEMA 2. Calcula el diametro de un grafo. 
+// Se define como la suma de las distancias mínimas a los dos nodos más alejados
+// del pseudocentro del grafo, el cual, es el nodo que minimiza la suma de las 
+// distancias mínimas a sus dos nodos más alejados.
+
+template <typename tCoste>
+size_t diametro(const GrafoP<tCoste>& G)
 {
+    matriz<typename GrafoP<tCoste>::vertice> P{};    
+    matriz<tCoste> F = Floyd(G, P);
+    size_t n = F.dimension();
+    vector<size_t> diam(n, 0);
     
+    for(std::size_t i=0; i < n; i++)
+    {
+        auto maxElementIndex = max_element(F[i].begin(),F[i].end()); //- F[i].begin();
+        diam[i] = *maxElementIndex; //max_element(begin(F[i]), end(F[i]));
+        *maxElementIndex = 0;
+        diam[i] += *max_element(F[i].begin(), F[i].end());
+    }
+    return *min_element(diam.begin(), diam.end());
 }
 
 // PROBLEMA 3. Aplicamos Floydd, y vemos que ninguno de sus elementos sea inf.
@@ -22,9 +42,11 @@ int diametro(const GrafoP<T>& G)
        dos caminos mínimos.
 */
 
-
-
 int main()
 {
+    GrafoP<size_t> diam("diametro.txt");
+    size_t d = diametro(diam);
+    
+    cout << "DIAMETRO: " << d << endl;
     return 0;
 }
