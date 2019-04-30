@@ -1,6 +1,6 @@
 #include <iostream>
 #include <algorithm>
-#include <vector>
+
 #include "materialesGrafos/alg_grafoPMC.h"
 #include "materialesGrafos/grafoPMC.h"
 #include "materialesGrafos/matriz.h"
@@ -12,20 +12,20 @@ using namespace std;
 // Se define como la suma de las distancias mínimas a los dos nodos más alejados
 // del pseudocentro del grafo, el cual, es el nodo que minimiza la suma de las 
 // distancias mínimas a sus dos nodos más alejados.
-
 template <typename tCoste>
 size_t diametro(const GrafoP<tCoste>& G)
 {
     matriz<typename GrafoP<tCoste>::vertice> P{};    
     matriz<tCoste> F = Floyd(G, P);
     size_t n = F.dimension();
-    vector<size_t> diam(n, 0);
     
-    for(std::size_t i=0; i < n; i++)
+    vector<size_t> diam(n, 0);
+    vector<size_t>::iterator maxElementIt;
+    for(size_t i=0; i<n; ++i)
     {
-        auto maxElementIndex = max_element(F[i].begin(),F[i].end()); //- F[i].begin();
-        diam[i] = *maxElementIndex; //max_element(begin(F[i]), end(F[i]));
-        *maxElementIndex = 0;
+        maxElementIt = max_element(F[i].begin(),F[i].end());
+        diam[i] += *maxElementIt; 
+        *maxElementIt = 0;
         diam[i] += *max_element(F[i].begin(), F[i].end());
     }
     return *min_element(diam.begin(), diam.end());
