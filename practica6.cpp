@@ -1,6 +1,5 @@
 #include <iostream>
 #include <algorithm>
-
 #include "materialesGrafos/alg_grafoPMC.h"
 #include "materialesGrafos/grafoPMC.h"
 #include "materialesGrafos/matriz.h"
