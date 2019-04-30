@@ -47,5 +47,6 @@ int main()
     size_t d = diametro(diam);
     
     cout << "DIAMETRO: " << d << endl;
+
     return 0;
 }
