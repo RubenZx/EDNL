@@ -17,14 +17,16 @@ int diametro(const GrafoP<tCoste>& G)
     size_t n = F.dimension();
     
     vector<unsigned> diam(n, 0);
-    vector<unsigned>::iterator maxElementIt;
+    int max1 = 0, max2 = 0;
     for(int i=0; i<n; ++i)
     {
-        maxElementIt = max_element(F[i].begin(),F[i].end());
-        diam[i] += *maxElementIt; 
-        *maxElementIt = 0;
-        diam[i] += *max_element(F[i].begin(), F[i].end());
+        for(int j=0; j<n; ++j)
+            if(F[i][j] > max1 && max1 <= max2) max1 = F[i][j];
+            else if(F[i][j] > max2) max2 = F[i][j];               
+        diam[i] = max1 + max2;
+        max1 = max2 = 0;
     }
+
     return *min_element(diam.begin(), diam.end());
 }
 
@@ -55,58 +57,69 @@ bool aciclico(const GrafoP<tCoste>& G)
        dos caminos mínimos.
 */
 template <typename tCoste>
-matriz<tCoste> Zuelandia(GrafoP<tCoste>& G, 
+matriz<tCoste> Zuelandia(const GrafoP<tCoste>& G, 
                          const vector<tCoste>& ciudades, 
                          const vector<typename GrafoP<tCoste>::arista>& carreteras,
                          const typename GrafoP<tCoste>::vertice& capital)
 {
+    GrafoP<tCoste> Z(G);
     typedef typename GrafoP<tCoste>::vertice vertice;
     size_t n = G.numVert();
-
+    
     // Eliminamos las ciudades tomadas por los rebeldes de nuestro Grafo
-    vector<tCoste>::iterator it;
-    for(it.begin() : ciudades)
-        fill(G[*it].begin(), G[*it].end()) = GrafoP<tCoste>::INFINITO;
+    //typename vector<tCoste>::iterator it;
+    for(auto it : ciudades)
+        for(int j=0; j<n; ++j)
+            Z[j][it] = GrafoP<tCoste>::INFINITO;
     
     // Eliminamos las carreteras tomadas por los rebeldes
-    for(it.begin() : carreteras)
+    for(auto it : carreteras)
     {
-        G[*it.orig][*it.dest] = GrafoP<tCoste>::INFINITO;
-        G[*it.dest][*it.orig] = GrafoP<tCoste>::INFINITO;
+        Z[it.orig][it.dest] = GrafoP<tCoste>::INFINITO ;
+        Z[it.dest][it.orig] = GrafoP<tCoste>::INFINITO ;
     }
 
-    vector<typename GrafoP<tCoste>::vertice> P{};
-    vector<tCoste> D    = Dijkstra(G, capital, P);
-    vector<tCoste> Dinv = DijkstraInv(G, capital, P);
+    // Llamamos a Dijkstra y a DijkstraInv para ver los caminos más óptimos de
+    // entrada y salida de la capital
+    vector<vertice> P{};
+    vector<tCoste> D    = Dijkstra(Z, capital, P);
+    vector<tCoste> Dinv = DijkstraInv(Z, capital, P);
     
+    matriz<tCoste> mZuelandia(n);
     vertice v, w;
     for(v = 0; v < n ; v++)
         for(w = 0; w < n; w++)
             if(v != w)
-                G[v][w] = suma(D[w], Dinv[v]);
-    
-    matriz<tCoste> mZuelandia(n);
-    
-    for(v = 0; v < n ; v++)
-        for(w = 0; w < n; w++)
-            mZuelandia[v][w] = G[v][w];
+                mZuelandia[v][w] = suma(D[w], Dinv[v]);
+            else
+                mZuelandia[v][w] = GrafoP<tCoste>::INFINITO;
     
     return mZuelandia;
 }
 
-
 int main()
 {
+    typedef GrafoP<unsigned>::vertice vertice;
+    typedef GrafoP<unsigned>::arista arista;
+
     GrafoP<unsigned> G("diametro.txt");
     string acicl;
+    matriz<unsigned> Z(G.numVert());
+    vector<unsigned> ciudades{6};
+    vector<arista> carreteras{GrafoP<unsigned>::arista(2,5,10)};
+    vertice capital{2};
     
     if(aciclico(G)) acicl = "Si";
     else acicl = "No";
     
-    
+    vector<GrafoP<unsigned>::vertice> P{};
 
     cout << "\n -> DIAMETRO.... " << diametro(G);
     cout << "\n -> ACICLICO?... " << acicl;
-    cout << "\n -> Zuelandia..." << endl;
+    cout << "\n -> Zuelandia antes de la rebelion.....\n" << G;
+    
+    Z = Zuelandia(G, ciudades, carreteras, capital);
+    cout << "\n -> Zuelandia despues de la rebelion...\n" << Z << endl;
+
     return 0;
 }

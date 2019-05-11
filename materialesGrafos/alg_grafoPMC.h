@@ -140,42 +140,50 @@ vector<tCoste> DijkstraInv(const GrafoP<tCoste>& G,
 // de destino a i.
 {
    typedef typename GrafoP<tCoste>::vertice vertice;
-   vertice v, w;
-   const size_t n = G.numVert();
-   vector<bool> S(n, false);                  // Conjunto de vértices vacío.
-   vector<tCoste> D;                          // Costes mínimos desde destino.
    
-   for (size_t i = 0; i < n; i++)
-      D[i] = G[i][destino];
-    
-   // Iniciar D y P con caminos directos desde el vértice destino.
-   D = G[destino];
-   D[destino] = 0;                             // Coste destino-destino es 0.
-   P = vector<vertice>(n, destino);
+    vertice v, w;
+    vector<tCoste> D(G.numVert());
+    vector<bool> S(G.numVert(), false);
 
-   // Calcular caminos de coste mínimo hasta cada vértice.
-   S[destino] = true;                          // Incluir vértice destino en S.
-   for (size_t i = 1; i <= n-2; i++) {
-      // Seleccionar vértice w no incluido en S
-      // con menor coste desde destino.
-      tCoste costeMin = GrafoP<tCoste>::INFINITO;
-      for (v = 0; v < n; v++)
-         if (!S[v] && D[v] <= costeMin) {
-            costeMin = D[v];
-            w = v;
-         }
-      S[w] = true;                          // Incluir vértice w en S.
-      // Recalcular coste hasta cada v no incluido en S a través de w.
-      for (v = 0; v < n; v++)
-         if (!S[v]) {
-            tCoste Dwv = suma(G[v][w], D[w]);
-            if (Dwv < D[v]) {
-               D[v] = Dwv;
-               P[v] = w;
+    for (size_t i = 0; i < G.numVert(); ++i)
+    {
+        D[i] = G[i][destino];
+    }
+
+    D[destino] = 0;
+    S[destino] = true;
+    P = vector<vertice>(G.numVert(), destino);
+
+    for (size_t i = 1; i < G.numVert() - 2; ++i)
+    {
+        tCoste min = GrafoP<tCoste>::INFINITO;
+
+        for (v = 0; v < G.numVert() - 1; ++v)
+        {
+            if (!S[v] && min >= D[v])
+            {
+                min = D[v];
+                w = v;
             }
-         }
-   }
-   return D;
+        }
+
+        S[w] = true;
+
+        for (v = 0; v < G.numVert() - 1; ++v)
+        { 
+            if (!S[v])
+            {
+                tCoste coste = suma(G[v][w], D[w]);
+
+                if (coste < D[v])
+                {
+                    D[v] = coste;
+                    P[v] = w;
+                }
+            }
+        }
+    }
+    return D;
 }
 
 template <typename tCoste> typename GrafoP<tCoste>::tCamino
