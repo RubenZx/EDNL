@@ -34,15 +34,14 @@ typename GrafoP<tCoste>::arista otraVezUnGrafoSA(const GrafoP<tCoste>& G)
 // PROBLEMA 2. Laberinto, calcular el camino para ir de la entrada a la salida y
 // su longitud
 template <typename tCoste>
-pair<typename GrafoP<tCoste>::tCamino , tCoste> 
-laberinto(int N, vector<typename GrafoP<tCoste>::arista> paredes, 
-          typename GrafoP<tCoste>::vertice entrada, 
-          typename GrafoP<tCoste>::vertice salida)
+pair<typename GrafoP<tCoste>::tCamino, tCoste> 
+laberinto(int N, const vector<typename GrafoP<tCoste>::arista>& paredes, 
+          const typename GrafoP<tCoste>::vertice& entrada, 
+          const typename GrafoP<tCoste>::vertice& salida)
 {
     typedef typename GrafoP<tCoste>::vertice vertice;
     vertice v, w;
     vector<vertice> P;
-    typename GrafoP<tCoste>::tCamino C;
     pair<typename GrafoP<tCoste>::tCamino , tCoste> salidaLab;
     GrafoP<tCoste> L(N*N);
     int ind;
@@ -78,29 +77,97 @@ laberinto(int N, vector<typename GrafoP<tCoste>::arista> paredes,
     // el camino de coste mínimo del leberinto mediante la función camino
     //==========================================================================
     vector<tCoste> D = Dijkstra(L, entrada, P);     
-    tCoste cSalida = D[salida];                 // Coste mín, de salir
-    C = camino(entrada, salida, P);             // Camino más óptimo
-    salidaLab = make_pair(C, cSalida);
+    salidaLab.second = D[salida];                   // Coste mín, de salir
+    salidaLab.first = camino(entrada, salida, P);   // Camino más óptimo
     
     return salidaLab;
+}
+
+// PROBLEMA 3. Devolver la cantidad a almacenar en cada ciudad y el coste mínimo
+// total de almacenar dichos productos
+template <typename tCoste>
+pair<vector<unsigned>, tCoste> distribucion(const GrafoP<tCoste>& ciudades,           
+                  const typename GrafoP<tCoste>::vertice& centro_prod, 
+                  unsigned cantidad, // Cantidad de producto total
+                  const vector<tCoste>& capacidad,
+                  const vector<double>& subv)
+{
+    size_t n = ciudades.numVert();
+    vector<unsigned> cants_ciud(n, 0);
+    tCoste coste = 0;
+    
+    pair<vector<unsigned>, tCoste> sol;
+    vector<typename GrafoP<tCoste>::vertice> P;  
+    vector<tCoste> D = Dijkstra(ciudades, centro_prod, P);
+
+    int i = 0;
+    while(i<n || cantidad!=0)
+    {
+        auto it = max_element(subv.begin(), subv.end());
+        int ind = distance(subv.begin(), it);
+        if(capacidad[ind] <= cantidad)
+        {
+            cants_ciud[ind] = capacidad[ind];
+            coste += D[ind] - (tCoste)((*it)*D[ind]/100);
+            *it = 0;
+        }
+        i++;
+    }
+
+    return make_pair(cants_ciud, coste);
 }
 
 int main()
 {
     unsigned inf = GrafoP<unsigned>::INFINITO;
+
     GrafoP<unsigned> G("grafo.txt");
+    GrafoP<unsigned> Dist("dist.txt");
+    //==========================================================================
+    // PROBLEMA 1
+    //==========================================================================
     GrafoP<unsigned>::arista viaje;
+    //==========================================================================
+    // PROBLEMA 2
+    //==========================================================================
     int N = 3;
     vector<GrafoP<unsigned>::arista> paredes{GrafoP<unsigned>::arista(0,1,inf),
                                              GrafoP<unsigned>::arista(4,5,inf)};
     GrafoP<unsigned>::vertice entrada{3}, salida{8};
-    pair<GrafoP<unsigned>::tCamino , unsigned> lab(laberinto(N, paredes, entrada, salida));
+    // pair<GrafoP<unsigned>::tCamino , unsigned> lab(laberinto(N, paredes, entrada, salida));
     
+    //==========================================================================
+    // PROBLEMA 3:
+    //==========================================================================
+    pair<vector<unsigned>, unsigned> p;
+    GrafoP<unsigned>::vertice centro{1};
+    unsigned cantidad{80};
+    vector<unsigned> capacidad{20,0,10,50,40,10};
+    vector<double> subv{25,0,30,15,10,20};
+
+    p = distribucion(Dist, centro, cantidad, capacidad, subv);
+
     viaje = otraVezUnGrafoSA(G);
     cout << "\n -> OTRAVEZUNGRAFOSA PROPONE COMO VIAJE..." << viaje.coste;
-    cout << "\n -> SALIDA DEL LABERINTO... ";
-    // Imprimir aqui los elementos de la lista tCamino del lab
+    // cout << "\n -> SALIDA DEL LABERINTO... ";
+    // Imprimir aqui los elementos de la lista tCamino que devuelve laberinto
+    
+    cout << "\n -> DISTRIBUCION ..." << endl;
+    cout << "   - COSTE: " << p.second << endl;
+    cout << "   - CIUDADES_CANTIDAD:" << endl;
+    for(int i=0; i<p.first.size(); ++i)
+        cout << "    - Ciudad: " << i << " Cantidad: " << p.first[i] << endl;
+
     cout << "\n" << endl;
+    
+    /*
+    vector<typename GrafoP<unsigned>::vertice> P;  
+    vector<unsigned> D = Dijkstra(Dist, 1, P);
+
+    for(int i=0; i<D.size(); ++i)
+    {
+        cout << D[i] << "\t";
+    }*/
 
     return 0;
 }
