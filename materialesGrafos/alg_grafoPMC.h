@@ -140,50 +140,41 @@ vector<tCoste> DijkstraInv(const GrafoP<tCoste>& G,
 // de destino a i.
 {
    typedef typename GrafoP<tCoste>::vertice vertice;
-   
-    vertice v, w;
-    vector<tCoste> D(G.numVert());
-    vector<bool> S(G.numVert(), false);
 
-    for (size_t i = 0; i < G.numVert(); ++i)
-    {
-        D[i] = G[i][destino];
-    }
+   vertice v, w;
+   vector<tCoste> D(G.numVert());
+   vector<bool> S(G.numVert(), false);
 
-    D[destino] = 0;
-    S[destino] = true;
-    P = vector<vertice>(G.numVert(), destino);
+   for (size_t i = 0; i < G.numVert(); ++i)
+      D[i] = G[i][destino];
 
-    for (size_t i = 1; i < G.numVert() - 2; ++i)
-    {
-        tCoste min = GrafoP<tCoste>::INFINITO;
 
-        for (v = 0; v < G.numVert() - 1; ++v)
-        {
-            if (!S[v] && min >= D[v])
-            {
-                min = D[v];
-                w = v;
-            }
-        }
+   D[destino] = 0;
+   S[destino] = true;
+   P = vector<vertice>(G.numVert(), destino);
 
-        S[w] = true;
-
-        for (v = 0; v < G.numVert() - 1; ++v)
-        { 
-            if (!S[v])
-            {
-                tCoste coste = suma(G[v][w], D[w]);
-
-                if (coste < D[v])
-                {
-                    D[v] = coste;
-                    P[v] = w;
-                }
-            }
-        }
-    }
-    return D;
+   for (size_t i = 1; i < G.numVert() - 2; ++i)
+   {
+      tCoste min = GrafoP<tCoste>::INFINITO;
+      for (v = 0; v < G.numVert() - 1; ++v)
+         if (!S[v] && min >= D[v])
+         {
+               min = D[v];
+               w = v;
+         }
+      S[w] = true;
+      for (v = 0; v < G.numVert() - 1; ++v)
+         if (!S[v])
+         {
+               tCoste coste = suma(G[v][w], D[w]);
+               if (coste < D[v])
+               {
+                  D[v] = coste;
+                  P[v] = w;
+               }
+         }
+   }
+   return D;
 }
 
 template <typename tCoste> typename GrafoP<tCoste>::tCamino
@@ -238,6 +229,42 @@ matriz<tCoste> Floyd(const GrafoP<tCoste>& G,
    return A;
 }
 
+
+// FUNCION PARA EL PROBLEMA 1 DE LA P7, FLOYD PARA CAMINOS DE COSTE MÁXIMO
+template <typename tCoste>
+matriz<tCoste> FloydMax(const GrafoP<tCoste>& G,
+                        matriz<typename GrafoP<tCoste>::vertice>& P)
+// Calcula los caminos de coste maximo entre cada
+// par de vértices del grafo G. Devuelve una matriz
+// de costes maximos A de tamaño n x n, con n = G.numVert()
+// y una matriz de vértices P de tamaño n x n, tal que
+// P[i][j] es el vértice por el que pasa el camino de coste
+// maximo de i a j, si este vértice es i el camino es directo.
+{
+   typedef typename GrafoP<tCoste>::vertice vertice;
+   const size_t n = G.numVert();
+   matriz<tCoste> A(n);   // matriz de costes mínimos
+
+   // Iniciar A y P con caminos directos entre cada par de vértices.
+   P = matriz<vertice>(n);
+   for (vertice i = 0; i < n; i++) {
+      A[i] = G[i];                    // copia costes del grafo
+      A[i][i] = 0;                    // diagonal a 0
+      P[i] = vector<vertice>(n, i);   // caminos directos
+   }
+   // Calcular costes máximos y caminos correspondientes
+   // entre cualquier par de vértices i, j
+   for (vertice k = 0; k < n; k++)
+      for (vertice i = 0; i < n; i++)
+         for (vertice j = 0; j < n; j++) {
+            tCoste ikj = suma(A[i][k], A[k][j]);
+            if (ikj > A[i][j] && ikj != GrafoP<tCoste>::INFINITO) {
+               A[i][j] = ikj;
+               P[i][j] = k;
+            }
+         }
+   return A;
+}
 
 template <typename tCoste>
 matriz<tCoste> Floyd_Ej3(const GrafoP<tCoste>& G,

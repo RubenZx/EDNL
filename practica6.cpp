@@ -102,7 +102,7 @@ int main()
     typedef GrafoP<unsigned>::vertice vertice;
     typedef GrafoP<unsigned>::arista arista;
 
-    GrafoP<unsigned> G("diametro.txt");
+    GrafoP<unsigned> G("Grafo1.txt");
     string acicl;
     matriz<unsigned> Z(G.numVert());
     vector<unsigned> ciudades{6};
