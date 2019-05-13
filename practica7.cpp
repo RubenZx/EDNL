@@ -40,11 +40,9 @@ laberinto(int N, const Lista<typename GrafoP<tCoste>::arista>& paredes,
           const typename GrafoP<tCoste>::vertice& salida)
 {
     typedef typename GrafoP<tCoste>::vertice vertice;
-    typedef GrafoP<tCoste>::INFINITO inf;
-    
+
     vertice v, w;
     vector<vertice> P;
-    pair<typename GrafoP<tCoste>::tCamino , tCoste> salidaLab;
     GrafoP<tCoste> L(N*N);
     //==========================================================================
     // PREPROCESADO DE LOS DATOS DE ENTRADA (Construcción del laberinto):
@@ -60,11 +58,11 @@ laberinto(int N, const Lista<typename GrafoP<tCoste>::arista>& paredes,
     }
     // Ponemos cada pared como aristas a INFINITO, es decir, no podremos usarla 
     // para ir de un nodo a otro´
-    arista<tCoste> pared;
+    typename GrafoP<tCoste>::arista pared;
     for(auto it = paredes.primera(); it != paredes.fin(); it = paredes.siguiente(it))
     {
         pared = paredes.elemento(it);
-        L[pared.orig][pared.dest] = L[pared.dest][pared.orig] = inf;
+        L[pared.orig][pared.dest] = L[pared.dest][pared.orig] = GrafoP<tCoste>::INFINITO;
     }
     //==========================================================================
     // Ya tenemos el laberinto formado, ahora tenemos que buscar el camino de 
@@ -73,10 +71,7 @@ laberinto(int N, const Lista<typename GrafoP<tCoste>::arista>& paredes,
     // el camino de coste mínimo del leberinto mediante la función camino
     //==========================================================================
     vector<tCoste> D = Dijkstra(L, entrada, P);     
-    salidaLab.second = D[salida];                   // Coste mín, de salir
-    salidaLab.first  = camino(entrada, salida, P);  // Camino más óptimo
-    
-    return salidaLab;
+    return make_pair(camino<tCoste>(entrada, salida, P), D[salida]);
 }
 
 // PROBLEMA 3. Devolver la cantidad a almacenar en cada ciudad y el coste mínimo
@@ -128,11 +123,12 @@ int main()
     // PROBLEMA 2
     //==========================================================================
     int N = 3;
-    vector<GrafoP<unsigned>::arista> paredes{GrafoP<unsigned>::arista(0,1,inf),
-                                             GrafoP<unsigned>::arista(4,5,inf)};
+    Lista<GrafoP<unsigned>::arista> paredes;
+    paredes.insertar(GrafoP<unsigned>::arista(0,1,inf), paredes.fin());
+    paredes.insertar(GrafoP<unsigned>::arista(0,1,inf), paredes.fin());
     GrafoP<unsigned>::vertice entrada{3}, salida{8};
-    // pair<GrafoP<unsigned>::tCamino , unsigned> lab(laberinto(N, paredes, entrada, salida));
-    
+    pair<GrafoP<unsigned>::tCamino , unsigned> lab;
+    lab = (laberinto<unsigned>(N, paredes, entrada, salida));
     //==========================================================================
     // PROBLEMA 3:
     //==========================================================================
@@ -146,8 +142,9 @@ int main()
 
     viaje = otraVezUnGrafoSA(G);
     cout << "\n -> OTRAVEZUNGRAFOSA PROPONE COMO VIAJE..." << viaje.coste;
-    // cout << "\n -> SALIDA DEL LABERINTO... ";
-    // Imprimir aqui los elementos de la lista tCamino que devuelve laberinto
+    cout << "\n -> SALIDA DEL LABERINTO...\t";
+    for(auto it = lab.first.primera(); it != lab.first.fin(); it = lab.first.siguiente(it))
+        cout << lab.first.elemento(it) << "\t";
     
     cout << "\n -> DISTRIBUCION ..." << endl;
     cout << "   *** COSTE *** " << p.second << endl;
