@@ -35,40 +35,36 @@ typename GrafoP<tCoste>::arista otraVezUnGrafoSA(const GrafoP<tCoste>& G)
 // su longitud
 template <typename tCoste>
 pair<typename GrafoP<tCoste>::tCamino, tCoste> 
-laberinto(int N, const vector<typename GrafoP<tCoste>::arista>& paredes, 
+laberinto(int N, const Lista<typename GrafoP<tCoste>::arista>& paredes, 
           const typename GrafoP<tCoste>::vertice& entrada, 
           const typename GrafoP<tCoste>::vertice& salida)
 {
     typedef typename GrafoP<tCoste>::vertice vertice;
+    typedef GrafoP<tCoste>::INFINITO inf;
+    
     vertice v, w;
     vector<vertice> P;
     pair<typename GrafoP<tCoste>::tCamino , tCoste> salidaLab;
     GrafoP<tCoste> L(N*N);
-    int ind;
     //==========================================================================
     // PREPROCESADO DE LOS DATOS DE ENTRADA (Construcción del laberinto):
     //==========================================================================
     // Ponemos todos los caminos posibles con el mismo coste(suponemos que cada 
     // arista entre dos nodos tiene coste 1)
-    ind = 0;
-    while(ind < N*N)
+    for(int ind = 0; ind < N*N; ind++)
     {
-        if(ind % N < N - 1) 
-            L[ind][ind + 1] = 1;    // Derecha
-        if((ind+1) % N > 1) 
-            L[ind][ind - 1] = 1;    // Izquierda
-        if(ind > N - 1) 
-            L[ind][ind-N] = 1;      // Arriba
-        if(ind < N*N - N) 
-            L[ind][ind+N] = 1;      // Abajo
-        ind++;
+        if(ind < N*(N-1))
+            L[ind][ind+N] = L[ind+N][ind] = 1;
+        if(ind % N != N-1)
+            L[ind][ind+1] = L[ind+1][ind] = 1;
     }
     // Ponemos cada pared como aristas a INFINITO, es decir, no podremos usarla 
-    // para ir de un nodo a otro
-    for(auto p : paredes)
+    // para ir de un nodo a otro´
+    arista<tCoste> pared;
+    for(auto it = paredes.primera(); it != paredes.fin(); it = paredes.siguiente(it))
     {
-        L[p.orig][p.dest] = GrafoP<tCoste>::INFINITO;
-        L[p.dest][p.orig] = GrafoP<tCoste>::INFINITO;
+        pared = paredes.elemento(it);
+        L[pared.orig][pared.dest] = L[pared.dest][pared.orig] = inf;
     }
     //==========================================================================
     // Ya tenemos el laberinto formado, ahora tenemos que buscar el camino de 
@@ -78,7 +74,7 @@ laberinto(int N, const vector<typename GrafoP<tCoste>::arista>& paredes,
     //==========================================================================
     vector<tCoste> D = Dijkstra(L, entrada, P);     
     salidaLab.second = D[salida];                   // Coste mín, de salir
-    salidaLab.first = camino(entrada, salida, P);   // Camino más óptimo
+    salidaLab.first  = camino(entrada, salida, P);  // Camino más óptimo
     
     return salidaLab;
 }
@@ -158,6 +154,7 @@ int main()
     cout << "      - CIUDADES-CANTIDAD:" << endl;
     for(int i=0; i<p.first.size(); ++i)
         cout << "      - Ciudad: " << i << " Cantidad: " << p.first[i] << endl;
+    
     cout << endl;
 
     return 0;
