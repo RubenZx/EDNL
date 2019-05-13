@@ -118,7 +118,7 @@ int main()
     //==========================================================================
     // PROBLEMA 1
     //==========================================================================
-    GrafoP<unsigned>::arista viaje;
+    GrafoP<unsigned>::arista viaje = otraVezUnGrafoSA(G);
     //==========================================================================
     // PROBLEMA 2
     //==========================================================================
@@ -137,16 +137,18 @@ int main()
     unsigned cantidad{80};
     vector<unsigned> capacidad{20,0,10,50,40,10};
     vector<double> subv{25,0,30,15,10,20};
-
     p = distribucion(Dist, centro, cantidad, capacidad, subv);
 
-    viaje = otraVezUnGrafoSA(G);
     cout << "\n -> OTRAVEZUNGRAFOSA PROPONE COMO VIAJE..." << viaje.coste;
-    cout << "\n -> SALIDA DEL LABERINTO...\t";
+    cout << "\n -> SALIDA DEL LABERINTO..................";
     for(auto it = lab.first.primera(); it != lab.first.fin(); it = lab.first.siguiente(it))
-        cout << lab.first.elemento(it) << "\t";
-    
-    cout << "\n -> DISTRIBUCION ..." << endl;
+    {   
+        if(it == lab.first.anterior(lab.first.fin()))
+            cout << lab.first.elemento(it);
+        else 
+            cout << lab.first.elemento(it) << "-"; 
+    }
+    cout << "\n -> DISTRIBUCION:" << endl;
     cout << "   *** COSTE *** " << p.second << endl;
     cout << "      - CIUDADES-CANTIDAD:" << endl;
     for(int i=0; i<p.first.size(); ++i)
