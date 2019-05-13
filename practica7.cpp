@@ -92,24 +92,25 @@ pair<vector<unsigned>, tCoste> distribucion(const GrafoP<tCoste>& ciudades,
                   const vector<tCoste>& capacidad,
                   const vector<double>& subv)
 {
-    size_t n = ciudades.numVert();
+    size_t n = subv.size();
     vector<unsigned> cants_ciud(n, 0);
+    vector<double> subvenciones(subv);
     tCoste coste = 0;
     
-    pair<vector<unsigned>, tCoste> sol;
     vector<typename GrafoP<tCoste>::vertice> P;  
     vector<tCoste> D = Dijkstra(ciudades, centro_prod, P);
 
     int i = 0;
     while(i<n || cantidad!=0)
     {
-        auto it = max_element(subv.begin(), subv.end());
-        int ind = distance(subv.begin(), it);
+        auto it = max_element(subvenciones.begin(), subvenciones.end());
+        int ind = distance(subvenciones.begin(), it);
         if(capacidad[ind] <= cantidad)
         {
             cants_ciud[ind] = capacidad[ind];
             coste += D[ind] - (tCoste)((*it)*D[ind]/100);
-            *it = 0;
+            cantidad -= capacidad[ind]; 
+            subvenciones.erase(it);
         }
         i++;
     }
@@ -153,21 +154,11 @@ int main()
     // Imprimir aqui los elementos de la lista tCamino que devuelve laberinto
     
     cout << "\n -> DISTRIBUCION ..." << endl;
-    cout << "   - COSTE: " << p.second << endl;
-    cout << "   - CIUDADES_CANTIDAD:" << endl;
+    cout << "   *** COSTE *** " << p.second << endl;
+    cout << "      - CIUDADES-CANTIDAD:" << endl;
     for(int i=0; i<p.first.size(); ++i)
-        cout << "    - Ciudad: " << i << " Cantidad: " << p.first[i] << endl;
-
-    cout << "\n" << endl;
-    
-    /*
-    vector<typename GrafoP<unsigned>::vertice> P;  
-    vector<unsigned> D = Dijkstra(Dist, 1, P);
-
-    for(int i=0; i<D.size(); ++i)
-    {
-        cout << D[i] << "\t";
-    }*/
+        cout << "      - Ciudad: " << i << " Cantidad: " << p.first[i] << endl;
+    cout << endl;
 
     return 0;
 }

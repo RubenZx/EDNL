@@ -15,7 +15,7 @@ int diametro(const GrafoP<tCoste>& G)
     matriz<typename GrafoP<tCoste>::vertice> P{};    
     matriz<tCoste> F = Floyd(G, P);
     size_t n = F.dimension();
-    
+
     vector<unsigned> diam(n, 0);
     int max1 = 0, max2 = 0;
     for(int i=0; i<n; ++i)
@@ -67,17 +67,13 @@ matriz<tCoste> Zuelandia(const GrafoP<tCoste>& G,
     size_t n = G.numVert();
     
     // Eliminamos las ciudades tomadas por los rebeldes de nuestro Grafo
-    //typename vector<tCoste>::iterator it;
     for(auto it : ciudades)
         for(int j=0; j<n; ++j)
             Z[j][it] = GrafoP<tCoste>::INFINITO;
     
     // Eliminamos las carreteras tomadas por los rebeldes
     for(auto it : carreteras)
-    {
-        Z[it.orig][it.dest] = GrafoP<tCoste>::INFINITO ;
-        Z[it.dest][it.orig] = GrafoP<tCoste>::INFINITO ;
-    }
+        Z[it.orig][it.dest] = GrafoP<tCoste>::INFINITO;
 
     // Llamamos a Dijkstra y a DijkstraInv para ver los caminos más óptimos de
     // entrada y salida de la capital

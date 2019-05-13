@@ -207,13 +207,14 @@ matriz<tCoste> Floyd(const GrafoP<tCoste>& G,
    typedef typename GrafoP<tCoste>::vertice vertice;
    const size_t n = G.numVert();
    matriz<tCoste> A(n);   // matriz de costes mínimos
-
    // Iniciar A y P con caminos directos entre cada par de vértices.
-   P = matriz<vertice>(n);
+   P = matriz<vertice>(n, -1);         // Caminos a infinito
    for (vertice i = 0; i < n; i++) {
-      A[i] = G[i];                    // copia costes del grafo
-      A[i][i] = 0;                    // diagonal a 0
-      P[i] = vector<vertice>(n, i);   // caminos directos
+      A[i] = G[i];                     // copia costes del grafo
+      A[i][i] = 0;                     // diagonal a 0
+      for(vertice j = 0; j < n; j++)
+         if(G[i][j] != GrafoP<tCoste>::INFINITO)
+            P[i][j] = i;               // caminos directos
    }
    // Calcular costes mínimos y caminos correspondientes
    // entre cualquier par de vértices i, j
@@ -223,7 +224,7 @@ matriz<tCoste> Floyd(const GrafoP<tCoste>& G,
             tCoste ikj = suma(A[i][k], A[k][j]);
             if (ikj < A[i][j]) {
                A[i][j] = ikj;
-               P[i][j] = k;
+               P[i][j] = P[k][j];
             }
          }
    return A;
@@ -244,15 +245,16 @@ matriz<tCoste> FloydMax(const GrafoP<tCoste>& G,
    typedef typename GrafoP<tCoste>::vertice vertice;
    const size_t n = G.numVert();
    matriz<tCoste> A(n);   // matriz de costes mínimos
-
    // Iniciar A y P con caminos directos entre cada par de vértices.
-   P = matriz<vertice>(n);
+   P = matriz<vertice>(n, -1);         // Caminos a infinito
    for (vertice i = 0; i < n; i++) {
-      A[i] = G[i];                    // copia costes del grafo
-      A[i][i] = 0;                    // diagonal a 0
-      P[i] = vector<vertice>(n, i);   // caminos directos
+      A[i] = G[i];                     // copia costes del grafo
+      A[i][i] = 0;                     // diagonal a 0
+      for(vertice j = 0; j < n; j++)
+         if(G[i][j] != GrafoP<tCoste>::INFINITO)
+            P[i][j] = i;               // caminos directos
    }
-   // Calcular costes máximos y caminos correspondientes
+   // Calcular costes mínimos y caminos correspondientes
    // entre cualquier par de vértices i, j
    for (vertice k = 0; k < n; k++)
       for (vertice i = 0; i < n; i++)
@@ -260,7 +262,7 @@ matriz<tCoste> FloydMax(const GrafoP<tCoste>& G,
             tCoste ikj = suma(A[i][k], A[k][j]);
             if (ikj > A[i][j] && ikj != GrafoP<tCoste>::INFINITO) {
                A[i][j] = ikj;
-               P[i][j] = k;
+               P[i][j] = P[k][j];
             }
          }
    return A;
@@ -279,13 +281,14 @@ matriz<tCoste> Floyd_Ej3(const GrafoP<tCoste>& G,
    typedef typename GrafoP<tCoste>::vertice vertice;
    const size_t n = G.numVert();
    matriz<tCoste> A(n);   // matriz de costes mínimos
-
    // Iniciar A y P con caminos directos entre cada par de vértices.
-   P = matriz<vertice>(n);
+   P = matriz<vertice>(n, -1);         // Caminos a infinito
    for (vertice i = 0; i < n; i++) {
-      A[i] = G[i];                    // copia costes del grafo
-      //A[i][i] = 0;                    // diagonal a 0
-      P[i] = vector<vertice>(n, i);   // caminos directos
+      A[i] = G[i];                     // copia costes del grafo
+      // A[i][i] = 0;                     // diagonal a 0
+      for(vertice j = 0; j < n; j++)
+         if(G[i][j] != GrafoP<tCoste>::INFINITO)
+            P[i][j] = i;               // caminos directos
    }
    // Calcular costes mínimos y caminos correspondientes
    // entre cualquier par de vértices i, j
@@ -293,9 +296,9 @@ matriz<tCoste> Floyd_Ej3(const GrafoP<tCoste>& G,
       for (vertice i = 0; i < n; i++)
          for (vertice j = 0; j < n; j++) {
             tCoste ikj = suma(A[i][k], A[k][j]);
-            if (ikj < A[i][j]) {
+            if (ikj > A[i][j] && ikj != GrafoP<tCoste>::INFINITO) {
                A[i][j] = ikj;
-               P[i][j] = k;
+               P[i][j] = P[k][j];
             }
          }
    return A;
