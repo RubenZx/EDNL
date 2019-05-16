@@ -4,18 +4,27 @@
 #include "materialesGrafos/alg_grafoPMC.h"
 #include "materialesGrafos/alg_grafo_E-S.h"
 
+template <typename tCoste>
+using arista = typename GrafoP<tCoste>::arista;
+
+template <typename tCoste>
+using vertice = typename GrafoP<tCoste>::vertice;
+
+template <typename tCoste>
+using tCamino = typename GrafoP<tCoste>::tCamino;
+
 using namespace std;
 
 // PROBLEMA 1. Coste, origen y destino, del viaje más caro entre dos ciudades de
 // un grafo acíclico
 template <typename tCoste>
-typename GrafoP<tCoste>::arista otraVezUnGrafoSA(const GrafoP<tCoste>& G)
+arista<tCoste> otraVezUnGrafoSA(const GrafoP<tCoste>& G)
 {
-    typename GrafoP<tCoste>::vertice v, w;
-    typename GrafoP<tCoste>::arista viaje;
+    vertice<tCoste> v, w;
+    arista<tCoste> viaje;
     size_t n = G.numVert();
 
-    matriz<typename GrafoP<tCoste>::vertice> P{};    
+    matriz<vertice<tCoste>> P{};    
     matriz<tCoste> F = FloydMax(G, P);  // Floyd modificado para los caminos de coste máximo
     
     viaje.coste = 0;
@@ -35,9 +44,8 @@ typename GrafoP<tCoste>::arista otraVezUnGrafoSA(const GrafoP<tCoste>& G)
 // su longitud
 template <typename tCoste>
 pair<typename GrafoP<tCoste>::tCamino, tCoste> 
-laberinto(int N, const Lista<typename GrafoP<tCoste>::arista>& paredes, 
-          const typename GrafoP<tCoste>::vertice& entrada, 
-          const typename GrafoP<tCoste>::vertice& salida)
+laberinto(int N, const Lista<arista<tCoste>>& paredes, 
+          const vertice<tCoste>& entrada, const vertice<tCoste>& salida)
 {
     typedef typename GrafoP<tCoste>::vertice vertice;
 
@@ -78,21 +86,19 @@ laberinto(int N, const Lista<typename GrafoP<tCoste>::arista>& paredes,
 // total de almacenar dichos productos
 template <typename tCoste>
 pair<vector<unsigned>, tCoste> distribucion(const GrafoP<tCoste>& ciudades,           
-                  const typename GrafoP<tCoste>::vertice& centro_prod, 
-                  unsigned cantidad, // Cantidad de producto total
-                  const vector<tCoste>& capacidad,
-                  const vector<double>& subv)
+                  const vertice<tCoste>& centro_prod, unsigned cantidad, 
+                  const vector<tCoste>& capacidad, const vector<double>& subv)
 {
     size_t n = subv.size();
     vector<unsigned> cants_ciud(n, 0);
     vector<double> subvenciones(subv);
     tCoste coste = 0;
     
-    vector<typename GrafoP<tCoste>::vertice> P;  
+    vector<vertice<tCoste>> P;  
     vector<tCoste> D = Dijkstra(ciudades, centro_prod, P);
 
     int i = 0;
-    while(i<n || cantidad!=0)
+    while(i<n || cantidad>0)
     {
         auto it = max_element(subvenciones.begin(), subvenciones.end());
         int ind = distance(subvenciones.begin(), it);
@@ -101,7 +107,7 @@ pair<vector<unsigned>, tCoste> distribucion(const GrafoP<tCoste>& ciudades,
             cants_ciud[ind] = capacidad[ind];
             coste += D[ind] - (tCoste)((*it)*D[ind]/100);
             cantidad -= capacidad[ind]; 
-            subvenciones.erase(it);
+            subvenciones[ind] = 0;          // *it = 0;
         }
         i++;
     }
@@ -109,10 +115,19 @@ pair<vector<unsigned>, tCoste> distribucion(const GrafoP<tCoste>& ciudades,
     return make_pair(cants_ciud, coste);
 }
 
+// PROBLEMA 4. Devolver la distancia total en kilometros que han de recorrer tus
+// caminones en un día
+template <typename tCoste>
+tCoste cementosZuelandia(const GrafoP<tCoste>& Zuelandia, 
+                        vector<pair<unsigned, vertice<tCoste>>> parte,
+                        vertice<tCoste> capital)
+{
+
+}
+
 int main()
 {
     unsigned inf = GrafoP<unsigned>::INFINITO;
-
     GrafoP<unsigned> G("grafo.txt");
     GrafoP<unsigned> Dist("dist.txt");
     //==========================================================================
@@ -136,9 +151,13 @@ int main()
     GrafoP<unsigned>::vertice centro{1};
     unsigned cantidad{80};
     vector<unsigned> capacidad{20,0,10,50,40,10};
-    vector<double> subv{25,0,30,15,10,20};
+    vector<double> subv{30,0,25,15,10,20};
     p = distribucion(Dist, centro, cantidad, capacidad, subv);
-
+    //==========================================================================
+    // PROBLEMA 4:
+    //==========================================================================
+    
+    //==========================================================================
     cout << "\n -> OTRAVEZUNGRAFOSA PROPONE COMO VIAJE..." << viaje.coste;
     cout << "\n -> SALIDA DEL LABERINTO..................";
     for(auto it = lab.first.primera(); it != lab.first.fin(); it = lab.first.siguiente(it))
