@@ -130,51 +130,18 @@ vector<tCoste> Dijkstra(const GrafoP<tCoste>& G,
 
 // EJERCICIO 1, PRÁCTICA 6
 template <typename tCoste>
-vector<tCoste> DijkstraInv(const GrafoP<tCoste>& G,
-                        typename GrafoP<tCoste>::vertice destino,
-                        vector<typename GrafoP<tCoste>::vertice>& P)
-// Calcula los caminos de coste mínimo entre destino y todos los
-// vértices del grafo G. En el vector D de tamaño G.numVert()
-// devuelve estos costes mínimos y P es un vector de tamaño
-// G.numVert() tal que P[i] es el último vértice del camino
-// de destino a i.
+vector<tCoste> DijkstraInv(const GrafoP<tCoste>& G, 
+                           typename GrafoP<tCoste>::vertice destino,
+                           vector<typename GrafoP<tCoste>::vertice>& P) 
 {
-   typedef typename GrafoP<tCoste>::vertice vertice;
-
-   vertice v, w;
-   vector<tCoste> D(G.numVert());
-   vector<bool> S(G.numVert(), false);
-
-   for (size_t i = 0; i < G.numVert(); ++i)
-      D[i] = G[i][destino];
-
-
-   D[destino] = 0;
-   S[destino] = true;
-   P = vector<vertice>(G.numVert(), destino);
-
-   for (size_t i = 1; i < G.numVert() - 2; ++i)
-   {
-      tCoste min = GrafoP<tCoste>::INFINITO;
-      for (v = 0; v < G.numVert() - 1; ++v)
-         if (!S[v] && min >= D[v])
-         {
-               min = D[v];
-               w = v;
-         }
-      S[w] = true;
-      for (v = 0; v < G.numVert() - 1; ++v)
-         if (!S[v])
-         {
-               tCoste coste = suma(G[v][w], D[w]);
-               if (coste < D[v])
-               {
-                  D[v] = coste;
-                  P[v] = w;
-               }
-         }
-   }
-   return D;
+   GrafoP<tCoste> Gt{G};
+   const size_t n{G.numVert()};
+   typename GrafoP<tCoste>::vertice v, w;
+   for (v = 0; v < n; ++v) 
+      for (w = 0; w < n; ++w) 
+         Gt[w][v] = G[v][w];
+      
+   return Dijkstra(Gt, destino, P);
 }
 
 template <typename tCoste> typename GrafoP<tCoste>::tCamino

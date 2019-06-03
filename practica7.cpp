@@ -98,7 +98,7 @@ pair<vector<unsigned>, tCoste> distribucion(const GrafoP<tCoste>& ciudades,
     vector<tCoste> D = Dijkstra(ciudades, centro_prod, P);
 
     int i = 0;
-    while(i<n || cantidad>0)
+    while(i<n && cantidad>0)
     {
         auto it = max_element(subvenciones.begin(), subvenciones.end());
         int ind = distance(subvenciones.begin(), it);
@@ -107,7 +107,7 @@ pair<vector<unsigned>, tCoste> distribucion(const GrafoP<tCoste>& ciudades,
             cants_ciud[ind] = capacidad[ind];
             coste += D[ind] - (tCoste)((*it)*D[ind]/100);
             cantidad -= capacidad[ind]; 
-            subvenciones[ind] = 0;          // *it = 0;
+            subvenciones[ind] = 0;
         }
         i++;
     }
@@ -119,20 +119,61 @@ pair<vector<unsigned>, tCoste> distribucion(const GrafoP<tCoste>& ciudades,
 // caminones en un día
 template <typename tCoste>
 tCoste cementosZuelandia(const GrafoP<tCoste>& Zuelandia, 
-                        vector<pair<unsigned, vertice<tCoste>>> parte,
-                        vertice<tCoste> capital)
+                        const vector<unsigned>& parte, vertice<tCoste> capital)
 {
+    size_t n = Zuelandia.numVert();
+    
+    vector<vertice<tCoste>> P;
+    vector<tCoste> D = Dijkstra(Zuelandia, capital, P);
+    vector<tCoste> Dinv = DijkstraInv(Zuelandia, capital, P);
+    
+    tCoste coste = 0;
+    for(vertice<tCoste> v = 0; v < n; v++)
+        coste += (D[v] + Dinv[v]) * parte[v];
+    
+    return coste;
+}
 
+// PROBLEMA 5. Devuelva las ciudades a las que podría viajar nuestro viajero
+enum transporte{
+    carretera, tren, avion
+};
+
+template <typename tCoste>
+vector<vertice<tCoste>> viajeroAlergico(const GrafoP<tCoste>& carretera, 
+                                        const GrafoP<tCoste>& tren, 
+                                        const GrafoP<tCoste>& avion,
+                                        short money, transporte alergia, 
+                                        vertice<tCoste> origen)
+{
+    size_t n = carretera.numVert();
+    GrafoP<tCoste> costesMin(n);
+
+    // Guardamos los grafos en un vector y eliminamos del que se sea alérgico
+    vector<const GrafoP<tCoste>*> vGrafos{&carretera, &tren, &avion};
+    vGrafos.erase(vGrafos.begin()+alergia);
+
+    auto transporte1 = *vGrafos[0], transporte2 = *vGrafos[1];
+    for (vertice<tCoste> v = 0; v < n; ++v) 
+        for (vertice<tCoste> w = 0; w < n; ++w) 
+            costesMin[v][w] = min(transporte1[v][w], transporte2[v][w]);
+    
+    vector<vertice<tCoste>> P, ciud;
+    vector<tCoste> D = Dijkstra(costesMin, origen, P);
+    for (vertice<tCoste> v = 0; v < D.size(); ++v)
+        if (D[v] <= money && v != origen)
+            ciud.push_back(v);
+    
+    return ciud;
 }
 
 int main()
 {
     unsigned inf = GrafoP<unsigned>::INFINITO;
-    GrafoP<unsigned> G("grafo.txt");
-    GrafoP<unsigned> Dist("dist.txt");
     //==========================================================================
     // PROBLEMA 1
     //==========================================================================
+    GrafoP<unsigned> G("ficheros_grafos/grafo.txt");
     GrafoP<unsigned>::arista viaje = otraVezUnGrafoSA(G);
     //==========================================================================
     // PROBLEMA 2
@@ -147,6 +188,7 @@ int main()
     //==========================================================================
     // PROBLEMA 3:
     //==========================================================================
+    GrafoP<unsigned> Dist("ficheros_grafos/dist.txt");
     pair<vector<unsigned>, unsigned> p;
     GrafoP<unsigned>::vertice centro{1};
     unsigned cantidad{80};
@@ -156,10 +198,23 @@ int main()
     //==========================================================================
     // PROBLEMA 4:
     //==========================================================================
-    
+    GrafoP<unsigned> Zuel("ficheros_grafos/Zuelandia.txt");
+    vector<unsigned> v = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    unsigned km = cementosZuelandia(Zuel, v, 0);
     //==========================================================================
-    cout << "\n -> OTRAVEZUNGRAFOSA PROPONE COMO VIAJE..." << viaje.coste;
-    cout << "\n -> SALIDA DEL LABERINTO..................";
+    // PROBLEMA 5:
+    //==========================================================================
+    GrafoP<short> A("ficheros_grafos/p7-5-a.txt");
+    GrafoP<short> C("ficheros_grafos/p7-5-c.txt");
+    GrafoP<short> T("ficheros_grafos/p7-5-t.txt");
+    short presupuesto{50};
+    vector<vector<size_t>> got(3);
+    got[0] = viajeroAlergico(C, T, A, presupuesto, carretera, 0);
+    got[1] = viajeroAlergico(C, T, A, presupuesto, tren, 0);
+    got[2] = viajeroAlergico(C, T, A, presupuesto, avion, 0);
+    //==========================================================================
+    cout << "\n -> 1_OTRAVEZUNGRAFOSA PROPONE COMO VIAJE   " << viaje.coste;
+    cout << "\n\n -> 2_SALIDA DEL LABERINTO...............   ";
     for(auto it = lab.first.primera(); it != lab.first.fin(); it = lab.first.siguiente(it))
     {   
         if(it == lab.first.anterior(lab.first.fin()))
@@ -167,12 +222,18 @@ int main()
         else 
             cout << lab.first.elemento(it) << "-"; 
     }
-    cout << "\n -> DISTRIBUCION:" << endl;
-    cout << "   *** COSTE *** " << p.second << endl;
+    cout << "\n\n -> 3_DISTRIBUCION: ";
+    cout << "\t\t*** COSTE *** " << p.second << endl;
     cout << "      - CIUDADES-CANTIDAD:" << endl;
     for(int i=0; i<p.first.size(); ++i)
         cout << "      - Ciudad: " << i << " Cantidad: " << p.first[i] << endl;
     
+    cout << "\n -> 4_CEMENTOS DE ZUELANDIA.............   " << km;
+    cout << "\n\n -> 5_VIAJERO ALERGICO:";
+    cout << "\n      - VIAJE SIN CARRETERA............." << got[0];
+    cout << "\n      - VIAJE SIN TREN.................." << got[1];
+    cout << "\n      - VIAJE SIN AVION................." << got[2];
+
     cout << endl;
 
     return 0;
