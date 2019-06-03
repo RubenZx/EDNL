@@ -1,6 +1,7 @@
 #include <iostream>
 #include <utility>
 #include <algorithm>
+#include <tuple>
 #include "materialesGrafos/alg_grafoPMC.h"
 #include "materialesGrafos/alg_grafo_E-S.h"
 
@@ -187,7 +188,59 @@ matriz<tCoste> transportesSinTaxi(const GrafoP<tCoste>& tren,
     return costesMin;
 }
 
-// PROBLEMA 7. 
+// PROBLEMA 7. Calcula la ruta y el coste mínimo para viajar entre las ciudades 
+// origen y destino en las condiciones siguientes:
+//    a) La ciudad origen solo dispone de tren.
+//    b) La ciudad destino solo dispone de bus.
+//    a) Solo se puede cambiar de medio de transporte en las estaciones dadas.
+template <typename tCoste>
+tuple<tCoste, tCamino<tCoste>> transportesSinTaxi2(
+    const GrafoP<tCoste>& tren, const GrafoP<tCoste>& bus,
+    const vertice<tCoste>& est1, const vertice<tCoste>& est2,
+    const vertice<tCoste>& orig, const vertice<tCoste>& dest)
+{
+    vector<vertice<tCoste>> caminosT, caminosB;
+    vector<tCoste> Dtren{Dijkstra(tren, orig, caminosT)};
+    vector<tCoste> Dbus{DijkstraInv(bus, dest, caminosB)};
+    
+    tCoste cFinal; 
+    tCamino<tCoste> pFinal;
+
+    tCoste coste_est1 = Dtren[est1] + Dbus[est1];
+    tCoste coste_est2 = Dtren[est2] + Dbus[est2];
+    if(coste_est1 < coste_est2)
+    {
+        cFinal = coste_est1;
+        pFinal = camino<tCoste>(orig, est1, caminosT);
+        pFinal.eliminar(pFinal.anterior(pFinal.fin()));
+        pFinal += caminoInv<tCoste>(dest, est1, caminosB);
+    }
+    else
+    { 
+        cFinal = coste_est2;
+        pFinal = camino<tCoste>(orig, est2, caminosT);
+        pFinal.eliminar(pFinal.anterior(pFinal.fin()));
+        pFinal += caminoInv<tCoste>(dest, est2, caminosB);
+    }
+
+    return make_tuple(cFinal, pFinal);
+}
+
+//=============================================================================
+// Funciones auxiliares para el main + main
+//=============================================================================
+
+template <typename T>
+void imprimirLista(const Lista<T>& listaImp)
+{
+    for(auto it = listaImp.primera(); it != listaImp.fin(); it = listaImp.siguiente(it))
+    {   
+        if(it == listaImp.anterior(listaImp.fin()))
+            cout << listaImp.elemento(it);
+        else 
+            cout << listaImp.elemento(it) << "-"; 
+    }
+}
 
 int main()
 {
@@ -197,6 +250,11 @@ int main()
     //==========================================================================
     GrafoP<unsigned> G("files/grafo.txt");
     GrafoP<unsigned>::arista viaje = otraVezUnGrafoSA(G);
+
+    cout << "\n -> 1_OTRAVEZUNGRAFOSA PROPONE COMO VIAJE:";
+    cout << "\n\t- ORIGEN.... " << viaje.orig;
+    cout << "\n\t- DESTINO... " << viaje.dest;
+    cout << "\n\t- PRECIO$... " << viaje.coste;
     //==========================================================================
     // PROBLEMA 2
     //==========================================================================
@@ -207,6 +265,9 @@ int main()
     GrafoP<unsigned>::vertice entrada{3}, salida{8};
     pair<GrafoP<unsigned>::tCamino , unsigned> lab;
     lab = (laberinto<unsigned>(N, paredes, entrada, salida));
+
+    cout << "\n\n -> 2_SALIDA DEL LABERINTO...............   ";
+    imprimirLista(lab.first);
     //==========================================================================
     // PROBLEMA 3:
     //==========================================================================
@@ -217,12 +278,20 @@ int main()
     vector<unsigned> capacidad{20,0,10,50,40,10};
     vector<double> subv{30,0,25,15,10,20};
     p = distribucion(Dist, centro, cantidad, capacidad, subv);
+
+    cout << "\n\n -> 3_DISTRIBUCION: ";
+    cout << "\t\t*** COSTE *** " << p.second << endl;
+    cout << "\t- CIUDADES-CANTIDAD:" << endl;
+    for(int i=0; i<p.first.size(); ++i)
+        cout << "\t- Ciudad: " << i << " Cantidad: " << p.first[i] << endl;
     //==========================================================================
     // PROBLEMA 4:
     //==========================================================================
     GrafoP<unsigned> Zuel("files/Zuelandia.txt");
     vector<unsigned> v = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
     unsigned km = cementosZuelandia(Zuel, v, 0);
+
+    cout << "\n -> 4_CEMENTOS DE ZUELANDIA.............   " << km;
     //==========================================================================
     // PROBLEMA 5:
     //==========================================================================
@@ -234,38 +303,34 @@ int main()
     got[0] = viajeroAlergico(C, T, A, presupuesto, carretera, 0);
     got[1] = viajeroAlergico(C, T, A, presupuesto, tren, 0);
     got[2] = viajeroAlergico(C, T, A, presupuesto, avion, 0);
+
+    cout << "\n\n -> 5_VIAJERO ALERGICO:";
+    cout << "\n\t- VIAJES SIN CARRETERA............" << got[0];
+    cout << "\n\t- VIAJES SIN TREN................." << got[1];
+    cout << "\n\t- VIAJES SIN AVION................" << got[2];
     //==========================================================================
     // PROBLEMA 6:
     //==========================================================================
     GrafoP<int> Bus("files/bus.txt"), Tren("files/tren.txt");
     matriz<int> viajeSinTaxi = transportesSinTaxi(Bus, Tren, 4);
+
+    cout << "\n\n -> 6_TRANSPORTE SIN TAXI...............   \n" << viajeSinTaxi;
     //==========================================================================
     // PROBLEMA 7:
     //==========================================================================
+    auto [cTaxi2, pTaxi2] = transportesSinTaxi2(Tren, Bus, 4, 3, 0, 7);
+    auto [cTaxi2_1, pTaxi2_1] = transportesSinTaxi2(Tren, Bus, 4, 3, 1, 6);
     
+    cout << "\n\n -> 7_TRANSPORTE SIN TAXI2..............";
+    cout << "\n\t __PRUEBA 1__  ";
+    cout << "\n\t- COSTE:  " << cTaxi2;
+    cout << "\n\t- CAMINO: "; imprimirLista(pTaxi2);
+    cout << "\n\n\t __PRUEBA 2__  ";
+    cout << "\n\t- COSTE:  " << cTaxi2_1;
+    cout << "\n\t- CAMINO: "; imprimirLista(pTaxi2_1);
     //==========================================================================
-    cout << "\n -> 1_OTRAVEZUNGRAFOSA PROPONE COMO VIAJE   " << viaje.coste;
-    cout << "\n\n -> 2_SALIDA DEL LABERINTO...............   ";
-    for(auto it = lab.first.primera(); it != lab.first.fin(); it = lab.first.siguiente(it))
-    {   
-        if(it == lab.first.anterior(lab.first.fin()))
-            cout << lab.first.elemento(it);
-        else 
-            cout << lab.first.elemento(it) << "-"; 
-    }
-    cout << "\n\n -> 3_DISTRIBUCION: ";
-    cout << "\t\t*** COSTE *** " << p.second << endl;
-    cout << "      - CIUDADES-CANTIDAD:" << endl;
-    for(int i=0; i<p.first.size(); ++i)
-        cout << "      - Ciudad: " << i << " Cantidad: " << p.first[i] << endl;
+    // PROBLEMA 8:
+    //==========================================================================
     
-    cout << "\n -> 4_CEMENTOS DE ZUELANDIA.............   " << km;
-    cout << "\n\n -> 5_VIAJERO ALERGICO:";
-    cout << "\n      - VIAJES SIN CARRETERA............" << got[0];
-    cout << "\n      - VIAJES SIN TREN................." << got[1];
-    cout << "\n      - VIAJES SIN AVION................" << got[2];
-    cout << "\n\n -> 6_TRANSPORTE SIN TAXI...............   \n" << viajeSinTaxi;
-    cout << endl;
-
     return 0;
 }

@@ -161,6 +161,23 @@ camino(typename GrafoP<tCoste>::vertice orig,
    return C;
 }
 
+template <typename tCoste> typename GrafoP<tCoste>::tCamino
+caminoInv(typename GrafoP<tCoste>::vertice dest,
+          typename GrafoP<tCoste>::vertice v,
+          const vector<typename GrafoP<tCoste>::vertice>& P)
+// Devuelve el camino de coste mínimo entre los vértices dest e v
+// a partir de un vector P obtenido mediante la función DijkstraInv().
+{
+   typename GrafoP<tCoste>::tCamino C;
+
+   C.insertar(v, C.fin());
+   do {
+      C.insertar(P[v], C.fin());
+      v = P[v];
+   } while (v != dest);
+   return C;
+}
+
 template <typename tCoste>
 matriz<tCoste> Floyd(const GrafoP<tCoste>& G,
                      matriz<typename GrafoP<tCoste>::vertice>& P)
