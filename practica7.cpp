@@ -6,10 +6,8 @@
 
 template <typename tCoste>
 using arista = typename GrafoP<tCoste>::arista;
-
 template <typename tCoste>
 using vertice = typename GrafoP<tCoste>::vertice;
-
 template <typename tCoste>
 using tCamino = typename GrafoP<tCoste>::tCamino;
 
@@ -167,13 +165,37 @@ vector<vertice<tCoste>> viajeroAlergico(const GrafoP<tCoste>& carretera,
     return ciud;
 }
 
+// PROBLEMA 6. Devuelva la matriz de costes mínimos de viajar entre cualquier 
+// ciudad de una ciudad, usando dos tipos de transporte, y pudiendose cambiar 
+// de transporte en una única ciudad
+template <typename tCoste>
+matriz<tCoste> transportesSinTaxi(const GrafoP<tCoste>& tren, 
+                                  const GrafoP<tCoste>& bus,
+                                  const vertice<tCoste>& estacion)
+{
+    size_t n = tren.numVert();
+    matriz<tCoste> costesMin(n);
+    matriz<vertice<tCoste>> M;
+    matriz<tCoste> Ftren{Floyd(tren, M)}, Fbus{Floyd(bus, M)};
+    
+    vertice<tCoste> v, w;
+    for(v=0; v<n; ++v)
+        for(w=0; w<n; ++w)    
+            costesMin[v][w] = min({Ftren[v][w], Fbus[v][w], 
+            Ftren[v][estacion]+Fbus[estacion][w], Fbus[v][estacion]+Ftren[estacion][w]});
+
+    return costesMin;
+}
+
+// PROBLEMA 7. 
+
 int main()
 {
     unsigned inf = GrafoP<unsigned>::INFINITO;
     //==========================================================================
     // PROBLEMA 1
     //==========================================================================
-    GrafoP<unsigned> G("ficheros_grafos/grafo.txt");
+    GrafoP<unsigned> G("files/grafo.txt");
     GrafoP<unsigned>::arista viaje = otraVezUnGrafoSA(G);
     //==========================================================================
     // PROBLEMA 2
@@ -188,7 +210,7 @@ int main()
     //==========================================================================
     // PROBLEMA 3:
     //==========================================================================
-    GrafoP<unsigned> Dist("ficheros_grafos/dist.txt");
+    GrafoP<unsigned> Dist("files/dist.txt");
     pair<vector<unsigned>, unsigned> p;
     GrafoP<unsigned>::vertice centro{1};
     unsigned cantidad{80};
@@ -198,20 +220,29 @@ int main()
     //==========================================================================
     // PROBLEMA 4:
     //==========================================================================
-    GrafoP<unsigned> Zuel("ficheros_grafos/Zuelandia.txt");
+    GrafoP<unsigned> Zuel("files/Zuelandia.txt");
     vector<unsigned> v = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
     unsigned km = cementosZuelandia(Zuel, v, 0);
     //==========================================================================
     // PROBLEMA 5:
     //==========================================================================
-    GrafoP<short> A("ficheros_grafos/p7-5-a.txt");
-    GrafoP<short> C("ficheros_grafos/p7-5-c.txt");
-    GrafoP<short> T("ficheros_grafos/p7-5-t.txt");
+    GrafoP<short> A("files/p7-5-a.txt");    // Avión
+    GrafoP<short> C("files/p7-5-c.txt");    // Carreteras
+    GrafoP<short> T("files/p7-5-t.txt");    // Tren
     short presupuesto{50};
-    vector<vector<size_t>> got(3);
+    vector<vector<size_t>> got(3);          
     got[0] = viajeroAlergico(C, T, A, presupuesto, carretera, 0);
     got[1] = viajeroAlergico(C, T, A, presupuesto, tren, 0);
     got[2] = viajeroAlergico(C, T, A, presupuesto, avion, 0);
+    //==========================================================================
+    // PROBLEMA 6:
+    //==========================================================================
+    GrafoP<int> Bus("files/bus.txt"), Tren("files/tren.txt");
+    matriz<int> viajeSinTaxi = transportesSinTaxi(Bus, Tren, 4);
+    //==========================================================================
+    // PROBLEMA 7:
+    //==========================================================================
+    
     //==========================================================================
     cout << "\n -> 1_OTRAVEZUNGRAFOSA PROPONE COMO VIAJE   " << viaje.coste;
     cout << "\n\n -> 2_SALIDA DEL LABERINTO...............   ";
@@ -230,10 +261,10 @@ int main()
     
     cout << "\n -> 4_CEMENTOS DE ZUELANDIA.............   " << km;
     cout << "\n\n -> 5_VIAJERO ALERGICO:";
-    cout << "\n      - VIAJE SIN CARRETERA............." << got[0];
-    cout << "\n      - VIAJE SIN TREN.................." << got[1];
-    cout << "\n      - VIAJE SIN AVION................." << got[2];
-
+    cout << "\n      - VIAJES SIN CARRETERA............" << got[0];
+    cout << "\n      - VIAJES SIN TREN................." << got[1];
+    cout << "\n      - VIAJES SIN AVION................" << got[2];
+    cout << "\n\n -> 6_TRANSPORTE SIN TAXI...............   \n" << viajeSinTaxi;
     cout << endl;
 
     return 0;
