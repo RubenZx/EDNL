@@ -1,15 +1,15 @@
 #include "p7.hpp"
 
 template <typename T>
-void imprimirLista(const Lista<T>& lista)
-{
-    for(auto it = lista.primera(); it != lista.fin(); it = lista.siguiente(it))
-        if(it == lista.anterior(lista.fin())) cout << lista.elemento(it);
-        else cout << lista.elemento(it) << "-"; 
+void imprimirLista(const Lista<T>& lista) {
+    for (auto it = lista.primera(); it != lista.fin(); it = lista.siguiente(it))
+        if (it == lista.anterior(lista.fin()))
+            cout << lista.elemento(it);
+        else
+            cout << lista.elemento(it) << "-";
 }
 
-int main()
-{
+int main() {
     unsigned inf = GrafoP<unsigned>::INFINITO;
     //==========================================================================
     // PROBLEMA 1
@@ -26,10 +26,10 @@ int main()
     //==========================================================================
     int N = 3;
     Lista<GrafoP<unsigned>::arista> paredes;
-    paredes.insertar(GrafoP<unsigned>::arista(0,1,inf), paredes.fin());
-    paredes.insertar(GrafoP<unsigned>::arista(0,1,inf), paredes.fin());
+    paredes.insertar(GrafoP<unsigned>::arista(0, 1, inf), paredes.fin());
+    paredes.insertar(GrafoP<unsigned>::arista(0, 1, inf), paredes.fin());
     GrafoP<unsigned>::vertice entrada{3}, salida{8};
-    pair<GrafoP<unsigned>::tCamino , unsigned> lab;
+    pair<GrafoP<unsigned>::tCamino, unsigned> lab;
     lab = (laberinto<unsigned>(N, paredes, entrada, salida));
 
     cout << "\n\n -> 2_SALIDA DEL LABERINTO...............   ";
@@ -41,14 +41,14 @@ int main()
     pair<vector<unsigned>, unsigned> p;
     GrafoP<unsigned>::vertice centro{1};
     unsigned cantidad{80};
-    vector<unsigned> capacidad{20,0,10,50,40,10};
-    vector<double> subv{30,0,25,15,10,20};
+    vector<unsigned> capacidad{20, 0, 10, 50, 40, 10};
+    vector<double> subv{30, 0, 25, 15, 10, 20};
     p = distribucion(Dist, centro, cantidad, capacidad, subv);
 
     cout << "\n\n -> 3_DISTRIBUCION: ";
     cout << "\t\t*** COSTE *** " << p.second << endl;
     cout << "\t- CIUDADES-CANTIDAD:" << endl;
-    for(int i=0; i<p.first.size(); ++i)
+    for (int i = 0; i < p.first.size(); ++i)
         cout << "\t- Ciudad: " << i << " Cantidad: " << p.first[i] << endl;
     //==========================================================================
     // PROBLEMA 4:
@@ -61,11 +61,11 @@ int main()
     //==========================================================================
     // PROBLEMA 5:
     //==========================================================================
-    GrafoP<short> A("files/p7-5-a.txt");    // Avión
-    GrafoP<short> C("files/p7-5-c.txt");    // Carreteras
-    GrafoP<short> T("files/p7-5-t.txt");    // Tren
+    GrafoP<short> A("files/p7-5-a.txt");  // Avión
+    GrafoP<short> C("files/p7-5-c.txt");  // Carreteras
+    GrafoP<short> T("files/p7-5-t.txt");  // Tren
     short presupuesto{50};
-    vector<vector<size_t>> got(3);          
+    vector<vector<size_t>> got(3);
     got[0] = viajeroAlergico(C, T, A, presupuesto, carretera, 0);
     got[1] = viajeroAlergico(C, T, A, presupuesto, tren, 0);
     got[2] = viajeroAlergico(C, T, A, presupuesto, avion, 0);
@@ -86,17 +86,23 @@ int main()
     //==========================================================================
     auto [cTaxi2, pTaxi2] = transportesSinTaxi2(Tren, Bus, 4, 3, 0, 7);
     auto [cTaxi2_1, pTaxi2_1] = transportesSinTaxi2(Tren, Bus, 4, 3, 1, 6);
-    
+
     cout << "\n -> 7_TRANSPORTE SIN TAXI2..............";
     cout << "\n\t __TRANSPORTE 1__  ";
     cout << "\n\t- COSTE:  " << cTaxi2;
-    cout << "\n\t- CAMINO: "; imprimirLista(pTaxi2);
+    cout << "\n\t- CAMINO: ";
+    imprimirLista(pTaxi2);
     cout << "\n\n\t __TRANSPORTE 2__  ";
     cout << "\n\t- COSTE:  " << cTaxi2_1;
-    cout << "\n\t- CAMINO: "; imprimirLista(pTaxi2_1);
+    cout << "\n\t- CAMINO: ";
+    imprimirLista(pTaxi2_1);
     //==========================================================================
     // PROBLEMA 8:
     //==========================================================================
-    
+    int costeViaje = unSoloTransbordo(Tren, Bus, 4, 3);
+
+    cout << "\n -> 8_UN SOLO TRANSBORDO................";
+    cout << "\n\t- COSTE: " << costeViaje;
+
     return 0;
 }
