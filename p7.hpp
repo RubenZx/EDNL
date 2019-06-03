@@ -226,111 +226,32 @@ tuple<tCoste, tCamino<tCoste>> transportesSinTaxi2(
     return make_tuple(cFinal, pFinal);
 }
 
-//=============================================================================
-// Funciones auxiliares para el main + main
-//=============================================================================
+/**
+ * @todo PROBLEMA 8
+ * @body 
+ */
 
-template <typename T>
-void imprimirLista(const Lista<T>& listaImp)
-{
-    for(auto it = listaImp.primera(); it != listaImp.fin(); it = listaImp.siguiente(it))
-    {   
-        if(it == listaImp.anterior(listaImp.fin()))
-            cout << listaImp.elemento(it);
-        else 
-            cout << listaImp.elemento(it) << "-"; 
-    }
-}
+/**
+ * @todo PROBLEMA 9
+ * @body 
+ */
 
-int main()
-{
-    unsigned inf = GrafoP<unsigned>::INFINITO;
-    //==========================================================================
-    // PROBLEMA 1
-    //==========================================================================
-    GrafoP<unsigned> G("files/grafo.txt");
-    GrafoP<unsigned>::arista viaje = otraVezUnGrafoSA(G);
+/**
+ * @todo PROBLEMA 10
+ * @body 
+ */
 
-    cout << "\n -> 1_OTRAVEZUNGRAFOSA PROPONE COMO VIAJE:";
-    cout << "\n\t- ORIGEN.... " << viaje.orig;
-    cout << "\n\t- DESTINO... " << viaje.dest;
-    cout << "\n\t- PRECIO$... " << viaje.coste;
-    //==========================================================================
-    // PROBLEMA 2
-    //==========================================================================
-    int N = 3;
-    Lista<GrafoP<unsigned>::arista> paredes;
-    paredes.insertar(GrafoP<unsigned>::arista(0,1,inf), paredes.fin());
-    paredes.insertar(GrafoP<unsigned>::arista(0,1,inf), paredes.fin());
-    GrafoP<unsigned>::vertice entrada{3}, salida{8};
-    pair<GrafoP<unsigned>::tCamino , unsigned> lab;
-    lab = (laberinto<unsigned>(N, paredes, entrada, salida));
+/**
+ * @todo PROBLEMA 11
+ * @body 
+ */
 
-    cout << "\n\n -> 2_SALIDA DEL LABERINTO...............   ";
-    imprimirLista(lab.first);
-    //==========================================================================
-    // PROBLEMA 3:
-    //==========================================================================
-    GrafoP<unsigned> Dist("files/dist.txt");
-    pair<vector<unsigned>, unsigned> p;
-    GrafoP<unsigned>::vertice centro{1};
-    unsigned cantidad{80};
-    vector<unsigned> capacidad{20,0,10,50,40,10};
-    vector<double> subv{30,0,25,15,10,20};
-    p = distribucion(Dist, centro, cantidad, capacidad, subv);
+/**
+ * @todo PROBLEMA 12
+ * @body 
+ */
 
-    cout << "\n\n -> 3_DISTRIBUCION: ";
-    cout << "\t\t*** COSTE *** " << p.second << endl;
-    cout << "\t- CIUDADES-CANTIDAD:" << endl;
-    for(int i=0; i<p.first.size(); ++i)
-        cout << "\t- Ciudad: " << i << " Cantidad: " << p.first[i] << endl;
-    //==========================================================================
-    // PROBLEMA 4:
-    //==========================================================================
-    GrafoP<unsigned> Zuel("files/Zuelandia.txt");
-    vector<unsigned> v = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-    unsigned km = cementosZuelandia(Zuel, v, 0);
-
-    cout << "\n -> 4_CEMENTOS DE ZUELANDIA.............   " << km;
-    //==========================================================================
-    // PROBLEMA 5:
-    //==========================================================================
-    GrafoP<short> A("files/p7-5-a.txt");    // Avión
-    GrafoP<short> C("files/p7-5-c.txt");    // Carreteras
-    GrafoP<short> T("files/p7-5-t.txt");    // Tren
-    short presupuesto{50};
-    vector<vector<size_t>> got(3);          
-    got[0] = viajeroAlergico(C, T, A, presupuesto, carretera, 0);
-    got[1] = viajeroAlergico(C, T, A, presupuesto, tren, 0);
-    got[2] = viajeroAlergico(C, T, A, presupuesto, avion, 0);
-
-    cout << "\n\n -> 5_VIAJERO ALERGICO:";
-    cout << "\n\t- VIAJES SIN CARRETERA............" << got[0];
-    cout << "\n\t- VIAJES SIN TREN................." << got[1];
-    cout << "\n\t- VIAJES SIN AVION................" << got[2];
-    //==========================================================================
-    // PROBLEMA 6:
-    //==========================================================================
-    GrafoP<int> Bus("files/bus.txt"), Tren("files/tren.txt");
-    matriz<int> viajeSinTaxi = transportesSinTaxi(Bus, Tren, 4);
-
-    cout << "\n\n -> 6_TRANSPORTE SIN TAXI...............   \n" << viajeSinTaxi;
-    //==========================================================================
-    // PROBLEMA 7:
-    //==========================================================================
-    auto [cTaxi2, pTaxi2] = transportesSinTaxi2(Tren, Bus, 4, 3, 0, 7);
-    auto [cTaxi2_1, pTaxi2_1] = transportesSinTaxi2(Tren, Bus, 4, 3, 1, 6);
-    
-    cout << "\n\n -> 7_TRANSPORTE SIN TAXI2..............";
-    cout << "\n\t __PRUEBA 1__  ";
-    cout << "\n\t- COSTE:  " << cTaxi2;
-    cout << "\n\t- CAMINO: "; imprimirLista(pTaxi2);
-    cout << "\n\n\t __PRUEBA 2__  ";
-    cout << "\n\t- COSTE:  " << cTaxi2_1;
-    cout << "\n\t- CAMINO: "; imprimirLista(pTaxi2_1);
-    //==========================================================================
-    // PROBLEMA 8:
-    //==========================================================================
-    
-    return 0;
-}
+/**
+ * @todo PROBLEMA 13
+ * @body 
+ */
