@@ -228,7 +228,9 @@ tuple<tCoste, tCamino<tCoste>> transportesSinTaxi2(
 
 /**
  * @todo PROBLEMA 8
- * @body 
+ * @body Subprograma que calcule la tarifa mínima de un viaje con las siguientes condiciones:
+ *    a) En todos tus viajes se hará como máximo UN solo trasbordo
+ *    b) Tenemos combinaciones de viajes entre TREN y/o BUS, en N ciudades 
  */
 
 /**
