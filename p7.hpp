@@ -4,6 +4,7 @@
 #include <utility>
 #include "materialesGrafos/alg_grafoPMC.h"
 #include "materialesGrafos/alg_grafo_E-S.h"
+#include "tools.hpp"
 
 template <typename tCoste>
 using arista = typename GrafoP<tCoste>::arista;
@@ -241,8 +242,44 @@ tCoste unSoloTransbordo(const GrafoP<tCoste>& tren, const GrafoP<tCoste>& bus,
 
 /**
  * @todo PROBLEMA 9
- * @body
+ * @body Realiza un subprograma calcule el camino y el coste mínimo para ir de
+ * la ciudad origen a la ciudad destino. Teniendo en cuenta que el coste del
+ * transbordo de un medio de transporte a otor es constante e igual para todas
+ * las ciudades, y que tenemos dos grafos (tren y bus).
  */
+template <typename tCoste>
+tuple<tCoste, tCamino<tCoste>> transporteConTaxi(const GrafoP<tCoste>& tren,
+                                                 const GrafoP<tCoste>& bus,
+                                                 vertice<tCoste> origen,
+                                                 vertice<tCoste> destino) {
+    size_t n = tren.numVert();
+
+    tCamino<tCoste> caminito;
+    tCoste cTaxi = 1;
+    GrafoP<tCoste> bigGraph(2 * n);
+    vertice<tCoste> v, w;
+    for (v = 0; v < n; ++v) {
+        for (w = 0; w < n; ++w) {
+            bigGraph[v][w] = tren[v][w];
+            bigGraph[v + n][w + n] = bus[v][w];
+            if (v == w) bigGraph[v + n][w] = bigGraph[v][w + n] = cTaxi;
+        }
+    }
+    vector<vertice<tCoste>> P;
+    vector<tCoste> D{Dijkstra(bigGraph, origen, P)};
+
+    if (D[destino] < D[destino + n])
+        caminito = camino<tCoste>(origen, destino, P);
+    else
+        caminito = camino<tCoste>(origen, destino + n, P);
+
+    for (auto it = caminito.primera(); it != caminito.fin();
+         it = caminito.siguiente(it)) {
+        if (caminito.elemento(it) > n - 1) caminito.elemento(it) -= n;
+    }
+
+    return {min(D[destino], D[destino + n]), caminito};
+}
 
 /**
  * @todo PROBLEMA 10

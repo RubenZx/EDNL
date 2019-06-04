@@ -1,14 +1,5 @@
 #include "p7.hpp"
 
-template <typename T>
-void imprimirLista(const Lista<T>& lista) {
-    for (auto it = lista.primera(); it != lista.fin(); it = lista.siguiente(it))
-        if (it == lista.anterior(lista.fin()))
-            cout << lista.elemento(it);
-        else
-            cout << lista.elemento(it) << "-";
-}
-
 int main() {
     unsigned inf = GrafoP<unsigned>::INFINITO;
     //==========================================================================
@@ -99,10 +90,18 @@ int main() {
     //==========================================================================
     // PROBLEMA 8:
     //==========================================================================
-    int costeViaje = unSoloTransbordo(Tren, Bus, 4, 3);
+    int costeViaje = unSoloTransbordo(Tren, Bus, 0, 7);
 
     cout << "\n -> 8_UN SOLO TRANSBORDO................";
     cout << "\n\t- COSTE: " << costeViaje;
+    //==========================================================================
+    // PROBLEMA 9:
+    //==========================================================================
+    auto [costeTaxi, caminoTaxi] = transporteConTaxi(Tren, Bus, 0, 1);
+    cout << "\n -> 9_TRANSPORTE CON TAXI...............";
+    cout << "\n\t- COSTE:  " << costeTaxi;
+    cout << "\n\t- CAMINO: ";
+    imprimirLista(caminoTaxi);
 
     return 0;
 }
