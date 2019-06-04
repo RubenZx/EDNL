@@ -91,17 +91,22 @@ int main() {
     // PROBLEMA 8:
     //==========================================================================
     int costeViaje = unSoloTransbordo(Tren, Bus, 0, 7);
+    int costeViaje2 = unSoloTransbordo(Tren, Bus, 4, 3);
 
-    cout << "\n -> 8_UN SOLO TRANSBORDO................";
-    cout << "\n\t- COSTE: " << costeViaje;
+    cout << "\n\n -> 8_UN SOLO TRANSBORDO................";
+    cout << "\n\t- COSTE 0-7: " << costeViaje;
+    cout << "\n\t- COSTE 4-3: " << costeViaje2;
     //==========================================================================
     // PROBLEMA 9:
     //==========================================================================
     auto [costeTaxi, caminoTaxi] = transporteConTaxi(Tren, Bus, 0, 1);
-    cout << "\n -> 9_TRANSPORTE CON TAXI...............";
+    cout << "\n\n -> 9_TRANSPORTE CON TAXI...............";
     cout << "\n\t- COSTE:  " << costeTaxi;
     cout << "\n\t- CAMINO: ";
     imprimirLista(caminoTaxi);
+    //==========================================================================
+    // PROBLEMA 10:
+    //==========================================================================
 
     return 0;
 }

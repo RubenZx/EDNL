@@ -255,20 +255,11 @@ tuple<tCoste, tCamino<tCoste>> transporteConTaxi(const GrafoP<tCoste>& tren,
     size_t n = tren.numVert();
 
     tCamino<tCoste> caminito;
-    tCoste cTaxi = 1;
-    GrafoP<tCoste> bigGraph(2 * n);
-    vertice<tCoste> v, w;
-    for (v = 0; v < n; ++v) {
-        for (w = 0; w < n; ++w) {
-            bigGraph[v][w] = tren[v][w];
-            bigGraph[v + n][w + n] = bus[v][w];
-            if (v == w) bigGraph[v + n][w] = bigGraph[v][w + n] = cTaxi;
-        }
-    }
     vector<vertice<tCoste>> P;
+    GrafoP<tCoste> bigGraph{makeBigGraph({tren, bus}, 1)};
     vector<tCoste> D{Dijkstra(bigGraph, origen, P)};
 
-    if (D[destino] < D[destino + n])
+    if (D[destino] < D[destino + n])  // Nos quedamos con el coste mínimo
         caminito = camino<tCoste>(origen, destino, P);
     else
         caminito = camino<tCoste>(origen, destino + n, P);
@@ -278,6 +269,8 @@ tuple<tCoste, tCamino<tCoste>> transporteConTaxi(const GrafoP<tCoste>& tren,
         if (caminito.elemento(it) > n - 1) caminito.elemento(it) -= n;
     }
 
+    // Cuando en un nodo hay un transborodo, en el camino se verán dos nodos
+    // iguales seguidos.
     return {min(D[destino], D[destino + n]), caminito};
 }
 
@@ -285,6 +278,7 @@ tuple<tCoste, tCamino<tCoste>> transporteConTaxi(const GrafoP<tCoste>& tren,
  * @todo PROBLEMA 10
  * @body
  */
+// template <typename tCoste>
 
 /**
  * @todo PROBLEMA 11
