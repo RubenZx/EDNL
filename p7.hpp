@@ -227,7 +227,7 @@ tCoste unSoloTransbordo(const GrafoP<tCoste>& tren, const GrafoP<tCoste>& bus,
     vector<tCoste> DTren{Dijkstra(tren, origen, P)};
     vector<tCoste> DBus{Dijkstra(bus, origen, P)};
     vector<tCoste> DinvTren{DijkstraInv(tren, destino, P)};
-    vector<tCoste> DinvBus{Dijkstrainv(bus, destino, P)};
+    vector<tCoste> DinvBus{DijkstraInv(bus, destino, P)};
 
     // Vector para sumar los elementos y ver cual es el coste minimo
     vector<tCoste> vAux(2 * n);
