@@ -68,7 +68,8 @@ int main() {
     //==========================================================================
     // PROBLEMA 6:
     //==========================================================================
-    GrafoP<int> Bus("files/p7-6_7-bus.txt"), Tren("files/p7-6_7-tren.txt");
+    GrafoP<int> Bus("files/p7-6...10-bus.txt");
+    GrafoP<int> Tren("files/p7-6...10-tren.txt");
     matriz<int> viajeSinTaxi = transportesSinTaxi(Bus, Tren, 4);
 
     cout << "\n\n -> 6_TRANSPORTE SIN TAXI...............   \n" << viajeSinTaxi;
@@ -107,6 +108,12 @@ int main() {
     //==========================================================================
     // PROBLEMA 10:
     //==========================================================================
+    GrafoP<int> Avion("files/p7-10-avion.txt");
+    auto [costeT2, caminoT2] = transporteConTaxi2(Tren, Bus, Avion, 0, 1, 2, 3);
+    cout << "\n\n -> 10_TRANSPORTE CON TAXI2.............";
+    cout << "\n\t- COSTE:  " << costeT2;
+    cout << "\n\t- CAMINO: ";
+    imprimirLista(caminoT2);
 
     return 0;
 }

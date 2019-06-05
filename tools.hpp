@@ -26,7 +26,7 @@ GrafoP<tCoste> makeBigGraph(const vector<GrafoP<tCoste>>& vGrafos,
 
     vertice<tCoste> v, w;
     for (size_t i = 0; i < m; ++i) {
-        for (v = 0; v < n; ++v) {
+        for (v = 0; v < n; ++v) {  // n = dim. del grafo que recibimos
             for (w = 0; w < n; ++w) {
                 bigGraph[v + n * i][w + n * i] = vGrafos[i][v][w];
                 if (v == w) {

@@ -278,8 +278,20 @@ tuple<tCoste, tCamino<tCoste>> transporteConTaxi(const GrafoP<tCoste>& tren,
  * @todo PROBLEMA 10
  * @body
  */
-// template <typename tCoste>
-
+template <typename tCoste>
+tuple<tCoste, tCamino<tCoste>> transporteConTaxi2(const GrafoP<tCoste>& tren,
+                                                  const GrafoP<tCoste>& bus,
+                                                  const GrafoP<tCoste>& avion,
+                                                  vertice<tCoste> origen,
+                                                  vertice<tCoste> destino,
+                                                  tCoste cTB, tCoste cATB) {
+    size_t n = tren.numVert();
+    vector<tCoste> v_cTB(n, cTB), v_cATB(n, cATB);
+    GrafoP<tCoste> bigGraph{
+        makeBigGraph<tCoste>({tren, bus, avion}, {v_cTB, v_cATB, v_cATB})};
+    cout << bigGraph;
+    return {0, tCamino<tCoste>{}};
+}
 /**
  * @todo PROBLEMA 11
  * @body
