@@ -1,11 +1,27 @@
+#include <algorithm>
 #include <iostream>
+#include <iterator>
+#include <tuple>
 #include "materialesGrafos/grafoPMC.h"
 #include "materialesGrafos/listaenla.h"
 
 using std::cout;
+using std::tuple;
 
 template <typename tCoste>
 using vertice = typename GrafoP<tCoste>::vertice;
+
+template <typename T>
+tuple<size_t, T> minIndex(const vector<T>& v) {
+    auto ind = min_element(v.begin(), v.end());
+    return {distance(v.begin(), ind), *ind};
+}
+
+template <typename T>
+tuple<size_t, T> maxIndex(const vector<T>& v) {
+    auto ind = max_element(v.begin(), v.end());
+    return {distance(v.begin(), ind), *ind};
+}
 
 // Función para imprimir una Lista dada, utilizada para ver el camino de ir de
 // un nodo a otro en un grafo
