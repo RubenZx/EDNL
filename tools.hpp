@@ -7,7 +7,8 @@ using std::cout;
 template <typename tCoste>
 using vertice = typename GrafoP<tCoste>::vertice;
 
-// Función para imprimir una Lista
+// Función para imprimir una Lista dada, utilizada para ver el camino de ir de
+// un nodo a otro en un grafo
 template <typename T>
 void imprimirLista(const Lista<T>& lista) {
     for (auto it = lista.primera(); it != lista.fin(); it = lista.siguiente(it))
