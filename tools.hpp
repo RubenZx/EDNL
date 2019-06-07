@@ -154,10 +154,10 @@ GrafoP<tCoste> makeBGdifN(const vector<GrafoP<tCoste>>& vGrafos,
         }
     }
 
-    // for (size_t j = 0; j < vCost.size(); ++j) {
-    //     bG[vCost[j].orig][vCost[j].dest] = bG[vCost[j].dest][vCost[j].orig] =
-    //         vCost[j].coste;
-    // }
+    // Colocamos los costes de los puentes entre las islas
+    for (auto& it : vCost) {
+        bG[it.orig][it.dest] = bG[it.dest][it.orig] = it.coste;
+    }
 
     return bG;
 }
