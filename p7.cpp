@@ -102,18 +102,29 @@ int main() {
     //==========================================================================
     auto [costeTaxi, caminoTaxi] = transporteConTaxi(Tren, Bus, 0, 1);
     cout << "\n\n -> 9_TRANSPORTE CON TAXI...............";
-    cout << "\n\t- COSTE:  " << costeTaxi;
-    cout << "\n\t- CAMINO: ";
+    cout << "\n\t- COSTE  0-1: " << costeTaxi;
+    cout << "\n\t- CAMINO 0-1: ";
     imprimirLista(caminoTaxi);
     //==========================================================================
     // PROBLEMA 10:
     //==========================================================================
     GrafoP<int> Avion("files/p7-10-avion.txt");
-    auto [costeT2, caminoT2] = transporteConTaxi2(Tren, Bus, Avion, 0, 1, 2, 3);
+    auto [costeT2, caminoT2] = transporteConTaxi2(Tren, Bus, Avion, 4, 3, 2, 3);
     cout << "\n\n -> 10_TRANSPORTE CON TAXI2.............";
-    cout << "\n\t- COSTE:  " << costeT2;
-    cout << "\n\t- CAMINO: ";
+    cout << "\n\t- COSTE  4-3: " << costeT2;
+    cout << "\n\t- CAMINO 4-3: ";
     imprimirLista(caminoT2);
+    //==========================================================================
+    // PROBLEMA 11:
+    //==========================================================================
+    GrafoP<int> io("files/p7-11-io.txt");
+    GrafoP<int> eu("files/p7-11-europa.txt");
+    GrafoP<int> eik("files/p7-11-eikos.txt");
+    vector<arista<int>> vAristas{arista<int>{3, 0, 0}, arista<int>{6, 7, 0},
+                                 arista<int>{2, 8, 0}};
+    matriz<int> M_Islas =
+        archipielagoHuries(vector<GrafoP<int>>{eik, io, eu}, vAristas);
+    cout << "\n\n -> 11_ARCHIPIELAGO HURIES.............\n" << M_Islas;
 
     return 0;
 }

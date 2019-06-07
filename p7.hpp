@@ -276,7 +276,9 @@ tuple<tCoste, tCamino<tCoste>> transporteConTaxi(const GrafoP<tCoste>& tren,
 
 /**
  * @todo PROBLEMA 10
- * @body
+ * @body Subprograma que entre 3 grafos distintos y varios tipos de costes,
+ * calcule el camino y el coste mínimo para ir de la ciudad origen a la ciudad
+ * destino
  */
 template <typename tCoste>
 tuple<tCoste, tCamino<tCoste>> transporteConTaxi2(const GrafoP<tCoste>& tren,
@@ -286,16 +288,53 @@ tuple<tCoste, tCamino<tCoste>> transporteConTaxi2(const GrafoP<tCoste>& tren,
                                                   vertice<tCoste> destino,
                                                   tCoste cTB, tCoste cATB) {
     size_t n = tren.numVert();
+    tCamino<tCoste> caminito;
     vector<tCoste> v_cTB(n, cTB), v_cATB(n, cATB);
     GrafoP<tCoste> bigGraph{
         makeBigGraph<tCoste>({tren, bus, avion}, {v_cTB, v_cATB, v_cATB})};
-    cout << bigGraph;
-    return {0, tCamino<tCoste>{}};
+    vector<vertice<tCoste>> P;
+    vector<tCoste> D = Dijkstra(bigGraph, origen, P);
+
+    // Nos quedamos con el coste mínimo y el indice del transporte
+    auto [ind, vMin] = minIndex(
+        vector<tCoste>{D[destino], D[destino + n], D[destino + 2 * n]});
+
+    // Buscamos el camino y sumamos al destino en función del transporte en el
+    // que se enceuntre
+    bool salir = false;
+    size_t cont = 0;
+    while (!salir) {
+        if (ind == cont) {
+            caminito = camino<tCoste>(origen, destino + ind * n, P);
+            salir = true;
+        }
+        ++cont;
+    }
+
+    // A continuación dejamos los valores de los nodos iniciales 0-n
+    for (auto it = caminito.primera(); it != caminito.fin();
+         it = caminito.siguiente(it)) {
+        if (caminito.elemento(it) > 2 * n - 1) caminito.elemento(it) -= 2 * n;
+        if (caminito.elemento(it) > n - 1) caminito.elemento(it) -= n;
+    }
+
+    return {vMin, caminito};
 }
+
 /**
  * @todo PROBLEMA 11
- * @body
+ * @body Subprograma que calcule los costes mínimos de viajar entre cualesquiera
+ * dos ciudades de entre 3 islas
  */
+template <typename tCoste>
+matriz<tCoste> archipielagoHuries(const vector<GrafoP<tCoste>>& islas,
+                                  const vector<arista<tCoste>>& puentes) {
+    GrafoP<tCoste> bG{makeBGdifN(islas, puentes)};
+    matriz<vertice<tCoste>> P;
+    matriz<tCoste> F{Floyd(bG, P)};
+
+    return F;
+}
 
 /**
  * @todo PROBLEMA 12
