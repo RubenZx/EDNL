@@ -161,3 +161,36 @@ GrafoP<tCoste> makeBGdifN(const vector<GrafoP<tCoste>>& vGrafos,
 
     return bG;
 }
+
+// Sobrecarga de la función anterior para cuando no se dispongan vectores de
+// puentes que conecten diferentes islas, es decir, solo construimos la matriz
+// con las dos islas
+// template <typename tCoste>
+// GrafoP<tCoste> makeBGdifN(const vector<GrafoP<tCoste>>& vGrafos) {
+//     size_t nGraphs{vGrafos.size()}, tot{0};
+//     vector<size_t> vTam(nGraphs, 0);
+
+//     // Guardamos el tamaño de cada grafo en un vector y el total en la var.
+//     tot for (size_t ind = 0; ind < nGraphs; ++ind) {
+//         vTam[ind] = vGrafos[ind].numVert();
+//         tot += vTam[ind];
+//     }
+
+//     GrafoP<tCoste> bG(tot);
+//     vector<arista<tCoste>> aristasI;
+//     vertice<tCoste> v, w, x, y;
+//     size_t sum = 0, tamAct, indbG;
+//     // Bucle hasta el número de grafos que tengamos
+//     for (size_t i = 0; i < nGraphs; ++i) {
+//         tamAct = vTam[i];      // Tomamos la dim. del grafo i-ésimo
+//         sum += tamAct;         // Acumulamos las dimensiones
+//         indbG = sum - tamAct;  // Contador para indexar el grafo grande
+//         for (v = 0, x = indbG; v < tamAct; ++v, ++x) {
+//             for (w = 0, y = indbG; w < tamAct; ++w, ++y) {
+//                 bG[x][y] = vGrafos[i][v][w];
+//             }
+//         }
+//     }
+
+//     return bG;
+// }
