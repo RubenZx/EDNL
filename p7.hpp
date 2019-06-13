@@ -301,15 +301,7 @@ tuple<tCoste, tCamino<tCoste>> transporteConTaxi2(const GrafoP<tCoste>& tren,
 
     // Buscamos el camino y sumamos al destino en función del transporte en el
     // que se enceuntre
-    bool salir = false;
-    size_t cont = 0;
-    while (!salir) {
-        if (ind == cont) {
-            caminito = camino<tCoste>(origen, destino + ind * n, P);
-            salir = true;
-        }
-        ++cont;
-    }
+    caminito = camino<tCoste>(origen, destino + ind * n, P);
 
     // A continuación dejamos los valores de los nodos iniciales 0-n
     for (auto it = caminito.primera(); it != caminito.fin();
@@ -338,8 +330,18 @@ matriz<tCoste> archipielagoHuries(const vector<GrafoP<tCoste>>& islas,
 
 /**
  * @todo PROBLEMA 12
- * @body
+ * @body Subprogreama que a partir de dos matrices de costes directos de Fobos y
+ * Deimos, y las listas de ciudades costeras de ambas, calcule las dos ciudades
+ * que unirá un puente.
  */
+template <typename tCoste>
+arista<tCoste> archipielagoGrecoland(const vector<GrafoP<tCoste>>& islas,
+                                     const vector<vertice<tCoste>>& cCosteras) {
+    arista<tCoste> puente;
+    // GrafoP<tCoste> bG{makeBGdifN(islas)};
+
+    return puente;
+}
 
 /**
  * @todo PROBLEMA 13
