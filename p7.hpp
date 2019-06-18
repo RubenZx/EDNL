@@ -2,8 +2,8 @@
 #include <iostream>
 #include <tuple>
 #include <utility>
-#include "materialesGrafos/alg_grafoPMC.h"
-#include "materialesGrafos/alg_grafo_E-S.h"
+#include "GraphFiles/alg_grafoPMC.h"
+#include "GraphFiles/alg_grafo_E-S.h"
 #include "tools.hpp"
 
 template <typename tCoste>
@@ -337,13 +337,98 @@ matriz<tCoste> archipielagoHuries(const vector<GrafoP<tCoste>>& islas,
 template <typename tCoste>
 arista<tCoste> archipielagoGrecoland(const vector<GrafoP<tCoste>>& islas,
                                      const vector<vertice<tCoste>>& cCosteras) {
+    tCoste inf = GrafoP<tCoste>::INFINITO;
+
     arista<tCoste> puente;
-    // GrafoP<tCoste> bG{makeBGdifN(islas)};
+    GrafoP<tCoste> bG{makeBGdifN(islas)};
+    matriz<vertice<tCoste>> P;
+    matriz<tCoste> F{Floyd(bG, P)};
+
+    // Como sabemos que solo son dos islas miraremos en cada una sus casteras
+    // para tomar aquella costera de cada isla que minimice la suma de los
+    // caminos al resto de ciudades de la isla
+    tCoste min1 = inf, min2 = inf;
+    size_t tamI1{islas[0].numVert()}, tamI2{islas[1].numVert()};
+    for (size_t i = 0; i < cCosteras.size(); ++i) {
+        vertice<tCoste> costeraAct{cCosteras[i]};
+        if (costeraAct < tamI1) {
+            tCoste minAct = 0;
+            for (size_t j = 0; j < tamI1; ++j)
+                if (F[costeraAct][j] != inf) minAct += F[costeraAct][j];
+            if (minAct < min1) {
+                min1 = minAct;
+                puente.orig = costeraAct;
+            }
+        } else {
+            tCoste minAct = 0;
+            for (size_t j = tamI1; j < tamI1 + tamI2; ++j)
+                if (F[costeraAct][j] != inf) minAct += F[costeraAct][j];
+            if (minAct < min2) {
+                min2 = minAct;
+                puente.dest = costeraAct;
+            }
+        }
+    }
 
     return puente;
 }
 
 /**
  * @todo PROBLEMA 13
- * @body
+ * @body A partir de las matrices de costes directos entre 3 islas, y las listas
+ * de las ciudades costeras, calcular los puentes a construir que minimicen el
+ * coste de viajar entre las islas
  */
+
+template <typename tCoste>
+vector<arista<tCoste>> HuriesPuentes(const vector<GrafoP<tCoste>>& islas,
+                                     const vector<vertice<tCoste>>& cCosteras) {
+    tCoste inf = GrafoP<tCoste>::INFINITO;
+    vector<vertice<tCoste>> vPuentes(islas.size(), 0);  // 3 vert. para cada C
+    vector<tCoste> vCPuentes(islas.size(), inf);        // 3 costes para cada C
+    vector<size_t> tamI{islas[0].numVert(), islas[1].numVert(),
+                        islas[2].numVert()};  // 3 tam. de las islas
+
+    GrafoP<tCoste> bG{makeBGdifN(islas)};  // Grafo grande con las 3 islas
+    matriz<vertice<tCoste>> P;
+    matriz<tCoste> F{Floyd(bG, P)};
+
+    for (size_t i = 0; i < cCosteras.size(); ++i) {
+        vertice<tCoste> costeraAct = cCosteras[i];
+        if (costeraAct < tamI[0]) {
+            tCoste minAct = 0;
+            for (size_t j = 0; j < tamI[0]; ++j)
+                if (F[costeraAct][j] != inf) minAct += F[costeraAct][j];
+            if (minAct < vCPuentes[0]) {
+                vCPuentes[0] = minAct;
+                vPuentes[0] = costeraAct;
+            }
+        }
+        if (costeraAct >= tamI[0] && costeraAct < tamI[0] + tamI[1]) {
+            tCoste minAct = 0;
+            for (size_t j = tamI[0]; j < tamI[0] + tamI[1]; ++j)
+                if (F[costeraAct][j] != inf) minAct += F[costeraAct][j];
+            if (minAct < vCPuentes[1]) {
+                vCPuentes[1] = minAct;
+                vPuentes[1] = costeraAct;
+            }
+        } else {
+            if (costeraAct >= tamI[0] + tamI[1]) {
+                tCoste minAct = 0;
+                for (size_t j = tamI[0] + tamI[1];
+                     j < tamI[0] + tamI[1] + tamI[2]; ++j)
+                    if (F[costeraAct][j] != inf) minAct += F[costeraAct][j];
+                if (minAct < vCPuentes[2]) {
+                    vCPuentes[2] = minAct;
+                    vPuentes[2] = costeraAct;
+                }
+            }
+        }
+    }
+    vector<arista<tCoste>> aPuentes{
+        arista<tCoste>{vPuentes[0], vPuentes[1], 0},
+        arista<tCoste>{vPuentes[1], vPuentes[2], 0}};
+    cout << F;
+
+    return aPuentes;
+}
