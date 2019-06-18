@@ -126,5 +126,26 @@ int main() {
         archipielagoHuries(vector<GrafoP<int>>{eik, io, eu}, vAristas);
     cout << "\n\n -> 11_ARCHIPIELAGO HURIES.............\n" << M_Islas;
 
+    //==========================================================================
+    // PROBLEMA 12:
+    //==========================================================================
+    arista<int> puente{
+        archipielagoGrecoland(vector<GrafoP<int>>{eik, io},
+                              vector<GrafoP<int>::vertice>{1, 2, 3, 4})};
+    cout << "\n\n -> 12_ARCHIPIELAGO GRECOLAND..........\n";
+    cout << "\t- PUENTE: " << puente.orig << " - " << puente.dest;
+
+    //==========================================================================
+    // PROBLEMA 13:
+    //==========================================================================
+    vector<arista<int>> puentes{
+        HuriesPuentes(vector<GrafoP<int>>{eu, eik, io},
+                      vector<GrafoP<int>::vertice>{1, 2, 3, 5, 7})};
+    cout << "\n\n -> 13_ARCHIPIELAGO HURIES PUENTES....\n";
+    for (size_t i = 0; i < puentes.size(); ++i) {
+        cout << "\t- PUENTE " << i << ": " << puentes[i].orig << " - "
+             << puentes[i].dest << endl;
+    }
+
     return 0;
 }
