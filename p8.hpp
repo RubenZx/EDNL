@@ -1,9 +1,10 @@
 #include <cmath>
 #include <iostream>
+#include <numeric>
 #include "GraphFiles/alg_grafoMA.h"
 #include "GraphFiles/alg_grafoPMC.h"
-#include "GraphFiles/alg_grafo_E-S.h"
-#include "GraphFiles/particion.h"
+#include "GraphFiles/particion.hpp"
+// #include "GraphFiles/alg_grafo_E-S.h"
 
 template <typename tCoste>
 using arista = typename GrafoP<tCoste>::arista;
@@ -62,3 +63,32 @@ tuple<vector<vector<vertice<size_t>>>, matriz<double>> Tombuctu(
 }
 
 // Problema 2:
+vector<arista<double>> Tombuctu2(const vector<coordCart>& ciudades,
+                                 const Grafo& carreteras) {
+    auto [islas, floyd] = Tombuctu(ciudades, carreteras);
+
+    size_t nIslas = islas.size(), ant = 0;
+    double costeAct, costesMin{GrafoP<double>::INFINITO};
+    vector<vertice<double>> repre(nIslas);
+    for (size_t i = 0; i < nIslas; ++i) {  // Bucle para recorrer cada isla
+        for (size_t j = ant; j < islas[i].size(); ++j) {
+            // Hacemos la suma de cada fila y vemos si su coste es menor, para
+            // asi elegir el representante de cada isla
+            costeAct = accumulate(
+                floyd[j].begin(), floyd[j].end(), 0, [](double a, double b) {
+                    return ((b != GrafoP<double>::INFINITO) ? a + b : a);
+                });
+            if (costeAct < costesMin) {
+                costesMin = costeAct;
+                repre[i] = j;
+            }
+        }
+        costesMin = GrafoP<double>::INFINITO;
+        ant += islas[i].size();
+    }
+
+    // A continuación pasamos a crear los aeropuertos entre las islas
+    vector<arista<double>> aeropuerto;
+
+    return aeropuerto;
+}
