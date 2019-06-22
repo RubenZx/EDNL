@@ -46,15 +46,15 @@ tuple<vector<vector<vertice<size_t>>>, matriz<double>> Tombuctu(
     matriz<double> F{Floyd(G, mP)};
 
     repre1 = P.encontrar(0);
-    vector<vector<vertice<size_t>>> vIslas(1, vector<size_t>(1, repre1));
+    vector<vector<vertice<size_t>>> vIslas(1, vector<size_t>(1, 0));
     size_t numIslas = 0;
     for (size_t i = 1; i < nCiud; ++i) {
         if (repre1 == P.encontrar(i))
-            vIslas[numIslas].push_back(repre1);
+            vIslas[numIslas].push_back(i);
         else {
             ++numIslas;
             repre1 = P.encontrar(i);
-            vIslas.push_back(vector<size_t>(1, repre1));
+            vIslas.push_back(vector<size_t>(1, i));
         }
     }
 
