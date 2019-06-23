@@ -20,6 +20,7 @@ struct coordCart {
     double distEuclid(const coordCart& c) const {
         return sqrt(pow(x - c.x, 2) + pow(y - c.y, 2));
     }
+    bool operator==(const coordCart& c) const { return (x == c.x && y == c.y); }
 };
 
 // Problema 1:
@@ -231,4 +232,61 @@ vector<arista<canal<tCoste>>> emasajerSA(const GrafoP<tCoste>& distJerte,
     }
 
     return vCanales;
+}
+
+// Problema 7:
+// Implementar un subprograma que calcule el coste mínimo de viajar entre dos
+// ciudades, orig y dest, despueés de reconstruir el archipiélago, sabiendo que:
+// a) El coste de construir cualquier carretera o puente es su dist. eucl.
+// b) Cualquier puente siempre será más caro que cualquier carretera.
+double reconstruirZuelandia(const vector<coordCart>& Fobos,
+                            const vector<coordCart>& Deimos,
+                            const vector<coordCart>& cFobos,
+                            const vector<coordCart>& cDeimos,
+                            vertice<double> orig, vertice<double> dest) {
+    // Construimos un grafo uniendo ambas islas
+    size_t tamF{Fobos.size()}, tamD{Deimos.size()};
+    GrafoP<double> GFobos{tamF}, GDeimos{tamD}, bG{tamF + tamD};
+
+    // A continuación pasamos a calcular la distancia entre todas y cada una de
+    // las ciudades dadas para cada isla
+    vertice<double> v, w;
+    for (v = 0; v < tamF + tamD; ++v) {
+        for (w = v + 1; w < tamF + tamD; ++w) {
+            if (v < tamF && w < tamF)
+                GFobos[v][w] = GFobos[w][v] = Fobos[v].distEuclid(Fobos[w]);
+            else
+                GDeimos[v - tamF][w - tamF] = GDeimos[w - tamF][v - tamF] =
+                    Deimos[v - tamF].distEuclid(Deimos[w - tamF]);
+        }
+    }
+
+    // Calculamos Kruskall para quedarnos con las carreteras entre las ciudades
+    // de las islas que minimicen la distancia entre todas
+    GFobos = Kruskall(GFobos);
+    GDeimos = Kruskall(GDeimos);
+
+    // Ahora pasamos a conectar las islas usando las costeras, de tal manera que
+    // conectaremos todas las costeras de una con todas las costeras de otra
+    size_t n = bG.numVert();
+    for (v = 0; v < n; ++v) {
+        for (w = v; w < n; ++w) {
+            if (v < tamF && w < tamF)  // Grafo superior
+                bG[v][w] = bG[w][v] = GFobos[v][w];
+            else if (v >= tamF && w >= tamF)  // Grafo inferior
+                bG[v][w] = bG[w][v] = GDeimos[v - tamF][w - tamF];
+            else if (v < tamF && w >= tamF &&
+                     find(cFobos.begin(), cFobos.end(), Fobos[v]) !=
+                         cFobos.end() &&
+                     find(cDeimos.begin(), cDeimos.end(), Deimos[w - tamF]) !=
+                         cDeimos.end())  // Conexión entre costeras
+                bG[v][w] = bG[w][v] = Fobos[v].distEuclid(Deimos[w - tamF]);
+        }
+    }
+
+    // Calculamos Floyd para ver que cual es la mejor costera, para conectar
+    // ambas islas
+    matriz<vertice<double>> mP;
+    matriz<double> floyd{Floyd(bG, mP)};
+
 }
