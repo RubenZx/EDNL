@@ -249,6 +249,8 @@ double reconstruirZuelandia(const vector<coordCart>& Fobos,
 
     // Ahora pasamos a conectar las islas usando las costeras, de tal manera que
     // conectaremos todas las costeras de una con todas las costeras de otra
+    double costeAct, costeMin = GrafoP<double>::INFINITO;
+    arista<double> puente;
     size_t n = bG.numVert();
     for (v = 0; v < n; ++v) {
         for (w = v; w < n; ++w) {
@@ -256,17 +258,27 @@ double reconstruirZuelandia(const vector<coordCart>& Fobos,
                 bG[v][w] = bG[w][v] = GFobos[v][w];
             else if (v >= tamF && w >= tamF)  // Grafo inferior
                 bG[v][w] = bG[w][v] = GDeimos[v - tamF][w - tamF];
+            // Conexión entre costeras
             else if (v < tamF && w >= tamF &&
                      find(cFobos.begin(), cFobos.end(), Fobos[v]) !=
                          cFobos.end() &&
                      find(cDeimos.begin(), cDeimos.end(), Deimos[w - tamF]) !=
-                         cDeimos.end())  // Conexión entre costeras
-                bG[v][w] = bG[w][v] = Fobos[v].distEuclid(Deimos[w - tamF]);
+                         cDeimos.end()) {
+                costeAct = bG[v][w] = bG[w][v] =
+                    Fobos[v].distEuclid(Deimos[w - tamF]);
+                if (costeAct < costeMin) {
+                    costeMin = costeAct;
+                    puente = arista<double>(v, w, costeAct);
+                }
+            }
         }
     }
+    // Conectamos el puente
+    bG[puente.orig][puente.dest] = bG[puente.dest][puente.orig] = puente.coste;
 
-    // Calculamos Floyd para ver que cual es la mejor costera, para conectar
-    // ambas islas
-    matriz<vertice<double>> mP;
-    matriz<double> floyd{Floyd(bG, mP)};
+    // Calculamos Dijkstra para ver el coste mínimo de ir del orig-dest
+    vector<vertice<double>> P;
+    vector<double> D{Dijkstra(bG, orig, P)};
+
+    return D[dest];  // Devolvemos el coste de ir al destino
 }
